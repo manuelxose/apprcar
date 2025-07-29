@@ -1,0 +1,167 @@
+<!-- Loading State -->
+<app-loading *ngIf="loading()" type="skeleton" />
+
+<!-- Error State -->
+<div *ngIf="error() && !loading()" class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div class="text-center px-6">
+    <div class="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-gray-900 mb-2">Error al cargar</h3>
+    <p class="text-gray-600 mb-6">{{ error() }}</p>
+    <button 
+      (click)="onBackClick()" 
+      class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-medium hover:bg-blue-700 transition-colors duration-200">
+      Volver atrás
+    </button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div *ngIf="parking() && !loading()" class="min-h-screen bg-white">
+  
+  <!-- Header con imagen y controles -->
+  <div class="relative h-80 bg-gradient-to-br from-blue-500 to-blue-700 rounded-b-3xl overflow-hidden">
+    <!-- Imagen de fondo (simulada con gradiente) -->
+    <div class="absolute inset-0 bg-black/20">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+    </div>
+    
+    <!-- Controles superiores -->
+    <div class="absolute top-0 left-0 right-0 flex items-center justify-between p-6 pt-12">
+      <button 
+        (click)="onBackClick()"
+        class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      
+      <div class="flex space-x-2">
+        <button 
+          (click)="onShareParking()"
+          class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors duration-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+          </svg>
+        </button>
+        
+        <button 
+          (click)="onToggleFavorite()"
+          class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors duration-200"
+          [class.bg-red-500]="isFavorite()"
+          [class.hover:bg-red-600]="isFavorite()">
+          <svg class="w-5 h-5" [class.fill-current]="isFavorite()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Información principal en overlay -->
+    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+      <div class="flex items-center space-x-2 mb-2">
+        <span class="text-2xl">{{ getParkingTypeIcon() }}</span>
+        <span class="text-sm bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+          {{ getParkingTypeLabel() }}
+        </span>
+      </div>
+      
+      <h1 class="text-2xl font-bold mb-2">{{ parking()!.name }}</h1>
+      <p class="text-white/90 mb-3">{{ parking()!.address }}</p>
+      
+      <!-- Stats rápidas -->
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-1" *ngIf="distance() > 0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          </svg>
+          <span class="text-sm">{{ formatDistance() }}</span>
+        </div>
+        
+        <div class="flex items-center space-x-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+          </svg>
+          <span class="text-sm">{{ formatPrice() }}</span>
+        </div>
+        
+        <div class="flex items-center space-x-1">
+          <div class="w-2 h-2 rounded-full" 
+               [class.bg-green-400]="statusColor() === 'green'"
+               [class.bg-yellow-400]="statusColor() === 'yellow'"
+               [class.bg-red-400]="statusColor() === 'red'">
+          </div>
+          <span class="text-sm">{{ getAvailabilityText() }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div class="flex">
+      <button 
+        *ngFor="let tab of [
+          { key: 'info', label: 'Información', icon: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+          { key: 'map', label: 'Mapa', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' },
+          { key: 'booking', label: 'Reservar', icon: 'M8 7V3a1 1 0 012 0v4m8 0V3a1 1 0 10-2 0v4M3 11h18M5 11v10a2 2 0 002 2h10a2 2 0 002-2V11' }
+        ]"
+        (click)="onTabChange(tab.key)"
+        class="flex-1 py-4 px-2 text-center transition-colors duration-200 tab-button"
+        [class.text-blue-600]="activeTab() === tab.key"
+        [class.border-b-2]="activeTab() === tab.key"
+        [class.border-blue-600]="activeTab() === tab.key"
+        [class.text-gray-600]="activeTab() !== tab.key"
+        [class.active]="activeTab() === tab.key">
+        
+        <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="tab.icon"/>
+        </svg>
+        <span class="text-sm font-medium">{{ tab.label }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="p-6">
+    
+    <!-- Info Tab -->
+    <div *ngIf="activeTab() === 'info'" class="fade-in-content">
+      <app-parking-info 
+        [parking]="parking()!" 
+        [userLocation]="userLocation()">
+      </app-parking-info>
+    </div>
+
+    <!-- Map Tab -->
+    <div *ngIf="activeTab() === 'map'" class="fade-in-content">
+      <app-parking-map 
+        [parking]="parking()!" 
+        [userLocation]="userLocation()">
+      </app-parking-map>
+    </div>
+
+    <!-- Booking Tab -->
+    <div *ngIf="activeTab() === 'booking'" class="fade-in-content">
+      <app-parking-booking 
+        [parking]="parking()!" 
+        [userLocation]="userLocation()"
+        (reservationComplete)="onBookingComplete($event)">
+      </app-parking-booking>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Action Button (FAB) para navegación rápida -->
+<div class="fixed bottom-6 right-6 z-50" *ngIf="parking() && !loading()">
+  <button 
+    (click)="onOpenInMaps()"
+    class="w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all duration-200 flex items-center justify-center fab-pulse">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"/>
+    </svg>
+  </button>
+</div>

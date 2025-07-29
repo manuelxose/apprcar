@@ -1,0 +1,587 @@
+// Parking Detail Component Styles - FINAL VERSION
+// Usando Tailwind CSS como base con extensiones personalizadas estilo Uber/Bolt
+
+// Import del módulo color de Sass
+@use 'sass:color';
+
+// Variables principales
+$primary-blue: #3b82f6;
+$primary-blue-dark: #1d4ed8;
+$success-green: #10b981;
+$warning-yellow: #f59e0b;
+$danger-red: #ef4444;
+$white-glass: rgba(255, 255, 255, 0.2);
+$black-overlay: rgba(0, 0, 0, 0.5);
+
+// Mixins reutilizables
+@mixin glassmorphism($opacity: 0.2) {
+  background: rgba(255, 255, 255, $opacity);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@mixin button-hover-lift {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    transition: transform 0.1s;
+  }
+}
+
+@mixin primary-gradient {
+  background: linear-gradient(135deg, $primary-blue 0%, $primary-blue-dark 100%);
+}
+
+// Animaciones personalizadas
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes fabPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes statusIndicator {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+// Componente principal
+:host {
+  display: block;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  position: relative;
+}
+
+// Header principal con imagen de fondo
+.parking-header {
+  position: relative;
+  height: 320px;
+  @include primary-gradient;
+  
+  // Overlay pattern para simular textura de imagen
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+      linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.02) 50%, transparent 70%);
+    pointer-events: none;
+  }
+  
+  // Gradient overlay para mejorar legibilidad del texto
+  .bg-gradient-to-t {
+    background: linear-gradient(to top, $black-overlay 0%, transparent 60%);
+  }
+  
+  @media (max-width: 640px) {
+    height: 280px;
+  }
+}
+
+// Botones flotantes con glassmorphism
+.glass-button {
+  @include glassmorphism(0.2);
+  @include button-hover-lift;
+  
+  &:hover {
+    @include glassmorphism(0.3);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+  
+  // Botón de favorito activo
+  &.bg-red-500 {
+    background: $danger-red !important;
+    border-color: $danger-red !important;
+    
+    &:hover {
+      background: color.adjust($danger-red, $lightness: -10%) !important;
+    }
+    
+    svg {
+      fill: currentColor;
+    }
+  }
+}
+
+// Información del parking en overlay
+.parking-info-overlay {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+  
+  .parking-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    
+    @media (max-width: 480px) {
+      gap: 12px;
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+      
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        
+        &.green {
+          background: #10b981;
+          box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        }
+        
+        &.yellow {
+          background: #f59e0b;
+          box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+        }
+        
+        &.red {
+          background: #ef4444;
+          box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+      }
+    }
+  }
+}
+
+// Navegación por tabs modernizada
+.tab-navigation {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  animation: slideInFromTop 0.4s ease-out;
+  
+  .tab-container {
+    display: flex;
+    
+    .tab-button {
+      flex: 1;
+      padding: 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease-in-out;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      
+      svg {
+        transition: all 0.2s ease-in-out;
+      }
+      
+      .tab-label {
+        font-size: 12px;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+      }
+      
+      // Estado activo
+      &.active {
+        color: $primary-blue;
+        
+        svg {
+          transform: scale(1.1);
+        }
+        
+        .tab-label {
+          font-weight: 600;
+        }
+        
+        // Indicador inferior animado
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 20%;
+          right: 20%;
+          height: 2px;
+          @include primary-gradient;
+          border-radius: 1px;
+          animation: slideInFromRight 0.3s ease-out;
+        }
+      }
+      
+      // Estado hover
+      &:not(.active):hover {
+        color: #6b7280;
+        background: rgba($primary-blue, 0.02);
+        
+        svg {
+          transform: translateY(-1px);
+        }
+      }
+      
+      @media (max-width: 640px) {
+        padding: 12px 4px;
+        
+        .tab-label {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+}
+
+// Contenido de tabs
+.tab-content {
+  position: relative;
+  
+  .fade-in-content {
+    animation: fadeInUp 0.4s ease-out;
+  }
+}
+
+// Botones principales
+.primary-button {
+  @include primary-gradient;
+  @include button-hover-lift;
+  box-shadow: 0 2px 8px rgba($primary-blue, 0.2);
+  
+  &:hover:not(:disabled) {
+    box-shadow: 0 4px 16px rgba($primary-blue, 0.3);
+  }
+  
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: none;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+.secondary-button {
+  background: #f3f4f6;
+  color: #374151;
+  @include button-hover-lift;
+  
+  &:hover {
+    background: #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Floating Action Button (FAB)
+.fab-pulse {
+  animation: fabPulse 3s infinite;
+  
+  &:hover {
+    animation: none;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 24px rgba($primary-blue, 0.4) !important;
+  }
+}
+
+// Estados de carga
+.skeleton-loader {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top: 3px solid $primary-blue;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Estados de error
+.error-state {
+  animation: fadeInUp 0.6s ease-out;
+  
+  .error-icon {
+    animation: pulse 2s infinite;
+  }
+  
+  .error-button {
+    @include button-hover-lift;
+    @include primary-gradient;
+  }
+}
+
+// Indicadores de estado
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: statusIndicator 2s infinite;
+  }
+  
+  &.available {
+    background: rgba($success-green, 0.1);
+    color: $success-green;
+    
+    .status-dot {
+      background: $success-green;
+    }
+  }
+  
+  &.limited {
+    background: rgba($warning-yellow, 0.1);
+    color: color.adjust($warning-yellow, $lightness: -10%);
+    
+    .status-dot {
+      background: $warning-yellow;
+    }
+  }
+  
+  &.full {
+    background: rgba($danger-red, 0.1);
+    color: $danger-red;
+    
+    .status-dot {
+      background: $danger-red;
+    }
+  }
+}
+
+// Cards de información
+.info-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease-in-out;
+  
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+}
+
+// Responsive design
+@media (max-width: 640px) {
+  :host {
+    background: white;
+  }
+  
+  .parking-header {
+    border-radius: 0 0 24px 24px;
+  }
+  
+  .tab-content {
+    padding: 16px;
+  }
+  
+  .glass-button {
+    width: 40px;
+    height: 40px;
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
+  .parking-info-overlay {
+    padding: 16px;
+    
+    h1 {
+      font-size: 20px;
+    }
+    
+    .parking-stats {
+      .stat-item {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .parking-header {
+    height: 260px;
+  }
+  
+  .tab-navigation {
+    .tab-container {
+      .tab-button {
+        padding: 10px 4px;
+        
+        svg {
+          width: 18px;
+          height: 18px;
+        }
+        
+        .tab-label {
+          font-size: 10px;
+        }
+      }
+    }
+  }
+}
+
+// Dark mode support (preparado para futuro)
+@media (prefers-color-scheme: dark) {
+  :host {
+    background-color: #111827;
+  }
+  
+  .tab-navigation {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .info-card {
+    background: #1f2937;
+    border-color: #374151;
+    
+    h1, h2, h3, h4, h5, h6 {
+      color: #f9fafb;
+    }
+    
+    p, span {
+      color: #d1d5db;
+    }
+  }
+  
+  .secondary-button {
+    background: #374151;
+    color: #f9fafb;
+    
+    &:hover {
+      background: #4b5563;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .glass-button,
+  .fab-pulse,
+  .tab-navigation {
+    display: none !important;
+  }
+  
+  .parking-header {
+    height: auto;
+    padding: 20px;
+    background: $primary-blue !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    
+    &::before {
+      display: none;
+    }
+  }
+}

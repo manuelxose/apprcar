@@ -1,0 +1,507 @@
+// home.component.scss
+@use 'tailwindcss/base';
+@use 'tailwindcss/components';
+@use 'tailwindcss/utilities';
+
+// Component root
+:host {
+  @apply block;
+}
+
+// Home container
+.home-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 100%);
+}
+
+// Loading overlay
+.loading-overlay {
+  @apply fixed inset-0 bg-white bg-opacity-90 backdrop-blur-sm z-50 flex items-center justify-center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+// Header section
+.home-header {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  @media (max-width: 768px) {
+    @apply sticky top-0 z-10;
+  }
+}
+
+.greeting-section {
+  h1 {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+// Location prompt
+.location-prompt {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  
+  &::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl opacity-80;
+    z-index: -1;
+  }
+}
+
+// Quick actions
+.quick-actions-section {
+  .quick-action-card {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      @apply absolute inset-0 bg-gradient-to-br from-white via-white to-gray-50 opacity-60;
+      z-index: -1;
+    }
+    
+    &:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                  0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      
+      .action-icon > div {
+        transform: scale(1.1);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      }
+    }
+    
+    &:active {
+      transform: translateY(0) scale(0.98);
+    }
+    
+    .action-icon > div {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+}
+
+// Reservations section
+.reservations-section {
+  .reservation-card {
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      @apply absolute left-0 top-0 bottom-0 w-1 bg-green-500;
+    }
+    
+    &:hover {
+      transform: translateX(4px);
+      box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 
+                  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+// Parking sections
+.parking-section {
+  .section-header {
+    h2 {
+      position: relative;
+      
+      &::after {
+        content: '';
+        @apply absolute -bottom-1 left-0 w-12 h-0.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full;
+      }
+    }
+  }
+}
+
+// Parking cards
+.parking-card {
+  position: relative;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-white via-white to-gray-50 opacity-80 rounded-2xl;
+    z-index: -1;
+  }
+  
+  &:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    
+    &::before {
+      @apply opacity-100;
+    }
+    
+    .parking-info h3 {
+      @apply text-blue-600;
+    }
+  }
+  
+  &:active {
+    transform: translateY(-2px) scale(1.01);
+  }
+  
+  // Status indicators
+  .status-badge {
+    position: relative;
+    
+    &::before {
+      content: '';
+      @apply absolute -left-2 top-1/2 w-2 h-2 rounded-full transform -translate-y-1/2;
+    }
+    
+    .text-green-500::before {
+      @apply bg-green-500;
+    }
+    
+    .text-amber-500::before {
+      @apply bg-amber-500;
+    }
+    
+    .text-red-500::before {
+      @apply bg-red-500;
+    }
+  }
+  
+  // Feature tags
+  .features-tags {
+    .feature-tag {
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      transition: all 0.2s ease;
+      
+      &:hover {
+        @apply bg-blue-100 text-blue-700 scale-105;
+      }
+    }
+  }
+  
+  // Price styling
+  .price-info {
+    position: relative;
+    
+    span:first-child {
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+}
+
+// Favorite button animations
+button[class*="favorite"] {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  svg {
+    transition: all 0.2s ease;
+    
+    &[fill="currentColor"] {
+      animation: heartBeat 0.6s ease-in-out;
+    }
+  }
+}
+
+// Heart beat animation for favorites
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  40% { transform: scale(1.1); }
+  60% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+// Skeleton loading
+.parking-skeleton {
+  .animate-pulse > div {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+// Empty state
+.empty-state {
+  .empty-icon {
+    position: relative;
+    
+    &::after {
+      content: '';
+      @apply absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full opacity-50 blur-xl;
+      z-index: -1;
+    }
+    
+    svg {
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    }
+  }
+}
+
+// Responsive enhancements
+@media (max-width: 768px) {
+  .home-content {
+    @apply pb-24; // Extra padding for bottom navigation
+  }
+  
+  .quick-actions-section {
+    .quick-action-card {
+      @apply p-3;
+      
+      .action-icon > div {
+        @apply w-10 h-10;
+        
+        svg {
+          @apply w-5 h-5;
+        }
+      }
+    }
+  }
+  
+  .parking-card {
+    &:hover {
+      transform: none;
+      @apply shadow-md;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-container {
+    @apply max-w-7xl mx-auto;
+  }
+  
+  .parking-grid {
+    .grid {
+      @apply lg:grid-cols-3 xl:grid-cols-4;
+    }
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .quick-action-card,
+  .parking-card,
+  .reservation-card {
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .home-container {
+    background: white;
+  }
+  
+  .quick-action-card,
+  .parking-card,
+  .reservation-card {
+    @apply border-2 border-gray-900;
+  }
+  
+  .location-prompt {
+    @apply border-2 border-blue-600;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .home-container {
+    @apply bg-gray-900;
+    background: linear-gradient(to bottom, #111827 0%, #1f2937 100%);
+  }
+  
+  .home-header {
+    @apply bg-gray-800 border-gray-700;
+  }
+  
+  .greeting-section h1 {
+    background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .quick-action-card,
+  .parking-card,
+  .reservation-card {
+    @apply bg-gray-800 border-gray-700;
+    
+    &::before {
+      @apply bg-gradient-to-br from-gray-800 to-gray-900;
+    }
+  }
+  
+  .location-prompt {
+    @apply bg-blue-900 border-blue-700;
+  }
+}
+
+// Focus states for accessibility
+.quick-action-card:focus-visible,
+.parking-card:focus-visible,
+.reservation-card:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+button:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+// Print styles
+@media print {
+  .location-prompt,
+  .quick-actions-section,
+  button {
+    @apply hidden;
+  }
+  
+  .home-container {
+    @apply bg-white text-black;
+  }
+  
+  .parking-card,
+  .reservation-card {
+    @apply shadow-none border border-gray-300;
+    page-break-inside: avoid;
+  }
+}
+
+// Custom scrollbar for webkit browsers
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+  
+  &:hover {
+    @apply bg-gray-400;
+  }
+}
+
+// Section transitions
+.parking-section,
+.reservations-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Stagger animation for cards
+.parking-grid > .grid > .parking-card {
+  animation: fadeInScale 0.5s ease-out;
+  animation-fill-mode: both;
+  
+  @for $i from 1 through 12 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// Search bar integration
+.search-section {
+  position: relative;
+  z-index: 10;
+  
+  ::ng-deep app-search-bar {
+    .search-input-container {
+      box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 
+                  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+// Loading states
+.section-loading {
+  .parking-skeleton > div {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .7;
+  }
+}
+
+// Enhanced button styles
+button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Micro-interactions
+.quick-action-card,
+.parking-card {
+  transform-origin: center;
+  will-change: transform, box-shadow;
+}
+
+// Container max-width override for better desktop experience
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1200px;
+  }
+}

@@ -1,0 +1,462 @@
+<!-- Contenedor principal del booking -->
+<div class="booking-container">
+
+  <!-- Header con resumen del parking -->
+  <div class="parking-summary-card">
+    <div class="parking-header">
+      <div class="parking-icon">
+        {{ parking.type === 'underground' ? '🏢' : parking.type === 'street' ? '🛣️' : '🅿️' }}
+      </div>
+      <div class="parking-info">
+        <h2 class="parking-name">{{ parking.name }}</h2>
+        <p class="parking-address">{{ parking.address }}</p>
+      </div>
+      <div class="availability-status"
+           [class.available]="parking.capacity.available > 0"
+           [class.full]="parking.capacity.available === 0">
+        <div class="status-icon">
+          <svg *ngIf="parking.capacity.available > 0" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <svg *ngIf="parking.capacity.available === 0" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </div>
+        <span class="status-text">
+          {{ parking.capacity.available > 0 ? 
+              parking.capacity.available + ' plazas disponibles' : 
+              'Sin plazas disponibles' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stepper de progreso -->
+  <div class="stepper-container">
+    <div class="stepper">
+      <div *ngFor="let step of steps(); let i = index" 
+           class="step"
+           [class.active]="currentStep() === i"
+           [class.completed]="step.completed"
+           (click)="goToStep(i)">
+        <div class="step-circle">
+          <svg *ngIf="step.completed" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <span *ngIf="!step.completed">{{ i + 1 }}</span>
+        </div>
+        <span class="step-title">{{ step.title }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido de los pasos -->
+  <div class="step-content">
+
+    <!-- Paso 1: Fecha y hora -->
+    <div *ngIf="currentStep() === 0" class="step-form">
+      <form [formGroup]="timeForm" class="time-form">
+        <div class="form-section">
+          <h3 class="section-title">¿Cuándo necesitas aparcar?</h3>
+          
+          <!-- Entrada -->
+          <div class="time-group">
+            <h4 class="time-group-title">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+              </svg>
+              Entrada
+            </h4>
+            <div class="datetime-inputs">
+              <div class="input-group">
+                <label class="input-label">Fecha</label>
+                <input 
+                  type="date" 
+                  formControlName="startDate"
+                  class="date-input"
+                  [class.error]="timeForm.get('startDate')?.invalid && timeForm.get('startDate')?.touched">
+                <div class="error-message" *ngIf="getFieldError(timeForm, 'startDate')">
+                  {{ getFieldError(timeForm, 'startDate') }}
+                </div>
+              </div>
+              
+              <div class="input-group">
+                <label class="input-label">Hora</label>
+                <input 
+                  type="time" 
+                  formControlName="startTime"
+                  class="time-input"
+                  [class.error]="timeForm.get('startTime')?.invalid && timeForm.get('startTime')?.touched">
+                <div class="error-message" *ngIf="getFieldError(timeForm, 'startTime')">
+                  {{ getFieldError(timeForm, 'startTime') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Salida -->
+          <div class="time-group">
+            <h4 class="time-group-title">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l4 4m0 0l-4 4m4-4H3m0 0a3 3 0 013-3h7a3 3 0 013 3"/>
+              </svg>
+              Salida
+            </h4>
+            <div class="datetime-inputs">
+              <div class="input-group">
+                <label class="input-label">Fecha</label>
+                <input 
+                  type="date" 
+                  formControlName="endDate"
+                  class="date-input"
+                  [class.error]="timeForm.get('endDate')?.invalid && timeForm.get('endDate')?.touched">
+                <div class="error-message" *ngIf="getFieldError(timeForm, 'endDate')">
+                  {{ getFieldError(timeForm, 'endDate') }}
+                </div>
+              </div>
+              
+              <div class="input-group">
+                <label class="input-label">Hora</label>
+                <input 
+                  type="time" 
+                  formControlName="endTime"
+                  class="time-input"
+                  [class.error]="timeForm.get('endTime')?.invalid && timeForm.get('endTime')?.touched">
+                <div class="error-message" *ngIf="getFieldError(timeForm, 'endTime')">
+                  {{ getFieldError(timeForm, 'endTime') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tipo de tarifa -->
+          <div class="input-group">
+            <label class="input-label">Tipo de tarifa</label>
+            <select 
+              formControlName="rateType"
+              class="select-input"
+              [class.error]="timeForm.get('rateType')?.invalid && timeForm.get('rateType')?.touched">
+              <option value="">Selecciona una tarifa</option>
+              <option *ngFor="let rate of getAvailableRates()" [value]="rate.id">
+                {{ getRateLabel(rate) }}
+              </option>
+            </select>
+            <div class="error-message" *ngIf="getFieldError(timeForm, 'rateType')">
+              {{ getFieldError(timeForm, 'rateType') }}
+            </div>
+          </div>
+
+          <!-- Resumen de tiempo y precio -->
+          <div class="time-summary" *ngIf="durationText() && estimatedPrice() >= 0">
+            <div class="summary-card">
+              <div class="summary-item">
+                <div class="summary-icon">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-label">Duración</span>
+                  <span class="summary-value">{{ durationText() }}</span>
+                </div>
+              </div>
+              
+              <div class="summary-item">
+                <div class="summary-icon">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                  </svg>
+                </div>
+                <div class="summary-content">
+                  <span class="summary-label">Precio estimado</span>
+                  <span class="summary-value price">€{{ estimatedPrice().toFixed(2) }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Aviso de parking gratuito -->
+            <div class="free-parking-notice" *ngIf="parking.pricing?.freeMinutes && estimatedPrice() === 0">
+              <div class="notice-icon">🎉</div>
+              <span>¡Parking gratuito para esta duración!</span>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Paso 2: Información del vehículo -->
+    <div *ngIf="currentStep() === 1" class="step-form">
+      <form [formGroup]="vehicleForm" class="vehicle-form">
+        <div class="form-section">
+          <h3 class="section-title">Información del vehículo</h3>
+          
+          <!-- Matrícula -->
+          <div class="input-group">
+            <label class="input-label">Matrícula *</label>
+            <input 
+              type="text" 
+              formControlName="licensePlate"
+              class="text-input"
+              placeholder="1234 ABC"
+              maxlength="10"
+              [class.error]="vehicleForm.get('licensePlate')?.invalid && vehicleForm.get('licensePlate')?.touched">
+            <div class="error-message" *ngIf="getFieldError(vehicleForm, 'licensePlate')">
+              {{ getFieldError(vehicleForm, 'licensePlate') }}
+            </div>
+          </div>
+
+          <!-- Tipo de vehículo -->
+          <div class="input-group">
+            <label class="input-label">Tipo de vehículo *</label>
+            <div class="vehicle-type-grid">
+              <label *ngFor="let type of vehicleTypes" 
+                     class="vehicle-type-option"
+                     [class.selected]="vehicleForm.get('vehicleType')?.value === type.value">
+                <input 
+                  type="radio" 
+                  [value]="type.value" 
+                  formControlName="vehicleType"
+                  class="hidden">
+                <div class="vehicle-type-card">
+                  <div class="vehicle-icon">{{ type.icon }}</div>
+                  <span class="vehicle-label">{{ type.label }}</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Detalles adicionales del vehículo -->
+          <div class="vehicle-details">
+            <h4 class="details-title">Detalles adicionales (opcional)</h4>
+            <div class="details-grid">
+              <div class="input-group">
+                <label class="input-label">Marca</label>
+                <input 
+                  type="text" 
+                  formControlName="make"
+                  class="text-input"
+                  placeholder="Toyota">
+              </div>
+
+              <div class="input-group">
+                <label class="input-label">Modelo</label>
+                <input 
+                  type="text" 
+                  formControlName="model"
+                  class="text-input"
+                  placeholder="Corolla">
+              </div>
+
+              <div class="input-group">
+                <label class="input-label">Color</label>
+                <input 
+                  type="text" 
+                  formControlName="color"
+                  class="text-input"
+                  placeholder="Azul">
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de ayuda -->
+          <div class="help-notice">
+            <div class="help-icon">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <p>La información adicional del vehículo nos ayuda a identificarlo en el parking.</p>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Paso 3: Pago -->
+    <div *ngIf="currentStep() === 2" class="step-form">
+      <form [formGroup]="paymentForm" class="payment-form">
+        <div class="form-section">
+          <h3 class="section-title">Método de pago</h3>
+          
+          <!-- Métodos de pago -->
+          <div class="input-group">
+            <label class="input-label">Selecciona método de pago</label>
+            <div class="payment-methods">
+              <label *ngFor="let method of paymentMethods" 
+                     class="payment-method-option"
+                     [class.selected]="paymentForm.get('paymentMethod')?.value === method.value">
+                <input 
+                  type="radio" 
+                  [value]="method.value" 
+                  formControlName="paymentMethod"
+                  class="hidden">
+                <div class="payment-method-card">
+                  <div class="payment-icon">{{ method.icon }}</div>
+                  <span class="payment-label">{{ method.label }}</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Campos de tarjeta (solo si se selecciona tarjeta) -->
+          <div class="card-fields" *ngIf="showCardFields()">
+            <div class="input-group">
+              <label class="input-label">Número de tarjeta</label>
+              <input 
+                type="text" 
+                formControlName="cardNumber"
+                class="text-input card-input"
+                placeholder="1234 5678 9012 3456"
+                maxlength="16"
+                [class.error]="paymentForm.get('cardNumber')?.invalid && paymentForm.get('cardNumber')?.touched">
+              <div class="input-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+              </div>
+              <div class="error-message" *ngIf="getFieldError(paymentForm, 'cardNumber')">
+                {{ getFieldError(paymentForm, 'cardNumber') }}
+              </div>
+            </div>
+
+            <div class="card-details">
+              <div class="input-group">
+                <label class="input-label">Vencimiento</label>
+                <input 
+                  type="text" 
+                  formControlName="expiryDate"
+                  class="text-input"
+                  placeholder="MM/YY"
+                  maxlength="5"
+                  [class.error]="paymentForm.get('expiryDate')?.invalid && paymentForm.get('expiryDate')?.touched">
+                <div class="error-message" *ngIf="getFieldError(paymentForm, 'expiryDate')">
+                  {{ getFieldError(paymentForm, 'expiryDate') }}
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label class="input-label">CVV</label>
+                <input 
+                  type="password" 
+                  formControlName="cvv"
+                  class="text-input"
+                  placeholder="123"
+                  maxlength="4"
+                  [class.error]="paymentForm.get('cvv')?.invalid && paymentForm.get('cvv')?.touched">
+                <div class="error-message" *ngIf="getFieldError(paymentForm, 'cvv')">
+                  {{ getFieldError(paymentForm, 'cvv') }}
+                </div>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Nombre del titular</label>
+              <input 
+                type="text" 
+                formControlName="cardholder"
+                class="text-input"
+                placeholder="Juan Pérez"
+                [class.error]="paymentForm.get('cardholder')?.invalid && paymentForm.get('cardholder')?.touched">
+              <div class="error-message" *ngIf="getFieldError(paymentForm, 'cardholder')">
+                {{ getFieldError(paymentForm, 'cardholder') }}
+              </div>
+            </div>
+
+            <!-- Guardar tarjeta -->
+            <label class="checkbox-label">
+              <input 
+                type="checkbox" 
+                formControlName="saveCard"
+                class="checkbox-input">
+              <div class="checkbox-custom"></div>
+              <span>Guardar tarjeta para futuras compras</span>
+            </label>
+          </div>
+
+          <!-- Información para otros métodos de pago -->
+          <div class="payment-info" *ngIf="!showCardFields()">
+            <div class="info-card">
+              <div class="info-icon">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <p>Serás redirigido al proveedor de pago para completar la transacción de forma segura.</p>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Navegación de pasos -->
+  <div class="step-navigation">
+    <button 
+      *ngIf="!isFirstStep"
+      (click)="goToPreviousStep()"
+      class="nav-button secondary">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      <span>Atrás</span>
+    </button>
+    
+    <button 
+      *ngIf="!isLastStep"
+      (click)="goToNextStep()"
+      [disabled]="!canProceedToNext()"
+      class="nav-button primary">
+      <span>Continuar</span>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+    
+    <button 
+      *ngIf="isLastStep"
+      (click)="submitReservation()"
+      [disabled]="!canCompleteBooking() || isLoading()"
+      class="nav-button primary complete">
+      <svg *ngIf="isLoading()" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span>{{ isLoading() ? 'Procesando...' : 'Completar reserva' }}</span>
+    </button>
+  </div>
+</div>
+
+<!-- Resumen sticky (bottom sheet) -->
+<div class="booking-summary-sticky" *ngIf="estimatedPrice() > 0 || selectedRate()">
+  <div class="summary-content">
+    <div class="summary-header">
+      <h4>Resumen de la reserva</h4>
+    </div>
+    
+    <div class="summary-details">
+      <div class="summary-row" *ngIf="durationText()">
+        <span class="label">Duración:</span>
+        <span class="value">{{ durationText() }}</span>
+      </div>
+      
+      <div class="summary-row" *ngIf="selectedRate()">
+        <span class="label">Tarifa:</span>
+        <span class="value">{{ selectedRate()!.name }}</span>
+      </div>
+      
+      <div class="summary-row" *ngIf="vehicleForm.get('licensePlate')?.value">
+        <span class="label">Vehículo:</span>
+        <span class="value">{{ vehicleForm.get('licensePlate')?.value }}</span>
+      </div>
+    </div>
+
+    <div class="summary-total">
+      <span class="total-label">Total:</span>
+      <span class="total-price">€{{ estimatedPrice().toFixed(2) }}</span>
+    </div>
+
+    <div class="free-notice" *ngIf="parking.pricing?.freeMinutes && estimatedPrice() === 0">
+      <div class="notice-icon">🎉</div>
+      <span>¡Parking gratuito!</span>
+    </div>
+  </div>
+</div>

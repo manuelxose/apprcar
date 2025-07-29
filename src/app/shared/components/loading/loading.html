@@ -1,0 +1,266 @@
+<!-- loading.component.html -->
+<div [class]="containerClasses()" *ngIf="isVisible()">
+  
+  <!-- Spinner Loading -->
+  <div *ngIf="type === 'spinner'" [class]="loaderClasses()">
+    <div class="spinner-wrapper flex flex-col items-center space-y-4">
+      <!-- Circular Spinner -->
+      <div class="relative">
+        <div 
+          class="spinner-ring rounded-full border-4 border-gray-200"
+          [style.width]="getSpinnerSize()"
+          [style.height]="getSpinnerSize()">
+        </div>
+        <div 
+          class="spinner-active absolute inset-0 rounded-full border-4 border-t-transparent animate-spin"
+          [class]="getColorClasses('spinner')"
+          [style.width]="getSpinnerSize()"
+          [style.height]="getSpinnerSize()">
+        </div>
+      </div>
+      
+      <!-- Message -->
+      <p *ngIf="message" [class]="messageClasses()">
+        {{ message }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Progress Bar Loading -->
+  <div *ngIf="type === 'bar'" [class]="loaderClasses()">
+    <div class="bar-wrapper w-full max-w-md space-y-3">
+      
+      <!-- Progress Bar Container -->
+      <div class="progress-container relative bg-gray-200 rounded-full overflow-hidden h-2">
+        
+        <!-- Indeterminate Bar -->
+        <div 
+          *ngIf="indeterminate"
+          class="progress-bar-indeterminate absolute inset-y-0 left-0 rounded-full animate-progress-indeterminate"
+          [class]="getProgressGradient()">
+        </div>
+        
+        <!-- Determinate Bar -->
+        <div 
+          *ngIf="!indeterminate"
+          class="progress-bar-determinate h-full rounded-full transition-all duration-300 ease-out"
+          [class]="getProgressGradient()"
+          [style.width.%]="progressPercentage()">
+        </div>
+      </div>
+      
+      <!-- Progress Percentage (for determinate) -->
+      <div *ngIf="!indeterminate" class="progress-text text-center">
+        <span class="text-sm font-medium text-gray-600">
+          {{ progressPercentage() }}%
+        </span>
+      </div>
+      
+      <!-- Message -->
+      <p *ngIf="message" [class]="messageClasses()">
+        {{ message }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Dots Loading -->
+  <div *ngIf="type === 'dots'" [class]="loaderClasses()">
+    <div class="dots-wrapper flex flex-col items-center space-y-4">
+      
+      <!-- Animated Dots -->
+      <div class="dots-container flex items-center space-x-2">
+        <div 
+          *ngFor="let i of [0, 1, 2]"
+          class="dot rounded-full animate-bounce"
+          [class]="getColorClasses('dot')"
+          [style.animation-delay]="i * 0.2 + 's'"
+          [ngClass]="{
+            'w-2 h-2': size === 'xs',
+            'w-3 h-3': size === 'sm',
+            'w-4 h-4': size === 'md',
+            'w-5 h-5': size === 'lg',
+            'w-6 h-6': size === 'xl'
+          }">
+        </div>
+      </div>
+      
+      <!-- Message -->
+      <p *ngIf="message" [class]="messageClasses()">
+        {{ message }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Pulse Loading -->
+  <div *ngIf="type === 'pulse'" [class]="loaderClasses()">
+    <div class="pulse-wrapper flex flex-col items-center space-y-4">
+      
+      <!-- Pulse Circle -->
+      <div class="pulse-container relative flex items-center justify-center">
+        <div 
+          class="pulse-circle rounded-full animate-ping"
+          [class]="getColorClasses('dot')"
+          [ngClass]="{
+            'w-8 h-8': size === 'xs',
+            'w-12 h-12': size === 'sm',
+            'w-16 h-16': size === 'md',
+            'w-20 h-20': size === 'lg',
+            'w-24 h-24': size === 'xl'
+          }">
+        </div>
+        <div 
+          class="pulse-inner absolute rounded-full"
+          [class]="getColorClasses('dot')"
+          [ngClass]="{
+            'w-4 h-4': size === 'xs',
+            'w-6 h-6': size === 'sm',
+            'w-8 h-8': size === 'md',
+            'w-10 h-10': size === 'lg',
+            'w-12 h-12': size === 'xl'
+          }">
+        </div>
+      </div>
+      
+      <!-- Message -->
+      <p *ngIf="message" [class]="messageClasses()">
+        {{ message }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Skeleton Loading -->
+  <div *ngIf="type === 'skeleton'" [class]="loaderClasses()">
+    <div class="skeleton-wrapper w-full space-y-4">
+      
+      <!-- Skeleton Items -->
+      <div 
+        *ngFor="let item of skeletonItems(); trackBy: trackByIndex"
+        class="skeleton-item animate-pulse"
+        [class]="getSkeletonVariantClasses()">
+        
+        <!-- List Variant -->
+        <div *ngIf="finalSkeletonConfig().variant === 'list'" class="flex items-center space-x-4">
+          
+          <!-- Avatar -->
+          <div *ngIf="shouldShowAvatar()" class="flex-shrink-0">
+            <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+          </div>
+          
+          <!-- Content -->
+          <div class="flex-1 space-y-2">
+            <div 
+              *ngFor="let line of [].constructor(getSkeletonLines()); let i = index"
+              class="h-4 rounded"
+              [class]="getColorClasses('skeleton') + ' ' + getSkeletonLineWidth(i)">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card Variant -->
+        <div *ngIf="finalSkeletonConfig().variant === 'card'" class="space-y-4">
+          
+          <!-- Image -->
+          <div *ngIf="shouldShowImage()" class="w-full h-48 bg-gray-300 rounded-xl"></div>
+          
+          <!-- Content -->
+          <div class="space-y-3">
+            <div class="h-6 bg-gray-300 rounded w-3/4"></div>
+            <div 
+              *ngFor="let line of [].constructor(getSkeletonLines()); let i = index"
+              class="h-4 rounded"
+              [class]="getColorClasses('skeleton') + ' ' + getSkeletonLineWidth(i)">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Table Variant -->
+        <div *ngIf="finalSkeletonConfig().variant === 'table'" class="flex items-center space-x-4 py-4">
+          <div class="w-8 h-4 bg-gray-300 rounded"></div>
+          <div class="flex-1 h-4 bg-gray-300 rounded"></div>
+          <div class="w-16 h-4 bg-gray-300 rounded"></div>
+          <div class="w-12 h-4 bg-gray-300 rounded"></div>
+        </div>
+        
+        <!-- Text Variant -->
+        <div *ngIf="finalSkeletonConfig().variant === 'text'" class="space-y-2">
+          <div 
+            *ngFor="let line of [].constructor(getSkeletonLines()); let i = index"
+            class="h-4 rounded"
+            [class]="getColorClasses('skeleton') + ' ' + getSkeletonLineWidth(i)">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Message -->
+      <p *ngIf="message" [class]="messageClasses() + ' mt-6'">
+        {{ message }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Custom Loading (Parking themed) -->
+  <div *ngIf="type === 'custom'" [class]="loaderClasses()">
+    <div class="custom-wrapper flex flex-col items-center space-y-4">
+      
+      <!-- Custom Icon Animation -->
+      <div class="custom-icon-container relative">
+        
+        <!-- Parking Icon -->
+        <div class="parking-icon-wrapper relative">
+          <div 
+            class="parking-icon rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 shadow-lg flex items-center justify-center animate-bounce"
+            [ngClass]="{
+              'w-12 h-12': size === 'xs',
+              'w-16 h-16': size === 'sm', 
+              'w-20 h-20': size === 'md',
+              'w-24 h-24': size === 'lg',
+              'w-28 h-28': size === 'xl'
+            }">
+            <svg 
+              class="text-white"
+              [ngClass]="{
+                'w-6 h-6': size === 'xs',
+                'w-8 h-8': size === 'sm',
+                'w-10 h-10': size === 'md',
+                'w-12 h-12': size === 'lg',
+                'w-14 h-14': size === 'xl'
+              }"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24">
+              <path 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2" 
+                [attr.d]="getCustomIcon()">
+              </path>
+            </svg>
+          </div>
+          
+          <!-- Ripple Effect -->
+          <div class="absolute inset-0 rounded-2xl bg-blue-400 animate-ping opacity-30"></div>
+        </div>
+        
+        <!-- Loading Dots under icon -->
+        <div class="loading-dots flex items-center justify-center space-x-1 mt-3">
+          <div 
+            *ngFor="let i of [0, 1, 2]"
+            class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"
+            [style.animation-delay]="i * 0.3 + 's'">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Message -->
+      <p *ngIf="message" [class]="messageClasses()">
+        {{ message }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading Overlay Background (for overlay mode) -->
+  <div 
+    *ngIf="mode === 'overlay'" 
+    class="overlay-background absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm -z-10">
+  </div>
+</div>

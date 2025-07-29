@@ -1,0 +1,963 @@
+// Parking Booking Component Styles
+// Usando Tailwind CSS como base con extensiones personalizadas
+
+@use 'sass:color';
+
+// Variables
+$primary-blue: #3b82f6;
+$primary-blue-dark: #1d4ed8;
+$success-green: #10b981;
+$warning-yellow: #f59e0b;
+$danger-red: #ef4444;
+
+// Animaciones
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stepComplete {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+// Componente principal
+:host {
+  display: block;
+  background: #f9fafb;
+  min-height: 100vh;
+  padding-bottom: 120px; // Espacio para el sticky summary
+}
+
+// Contenedor principal
+.booking-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+// Card de resumen del parking
+.parking-summary-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  
+  .parking-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    .parking-icon {
+      font-size: 28px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f3f4f6;
+      border-radius: 12px;
+    }
+    
+    .parking-info {
+      flex: 1;
+      min-width: 0;
+      
+      .parking-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0 0 4px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .parking-address {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+    
+    .availability-status {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      
+      .status-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
+      
+      .status-text {
+        font-size: 11px;
+        font-weight: 500;
+        text-align: center;
+        max-width: 80px;
+        line-height: 1.2;
+      }
+      
+      &.available {
+        .status-icon {
+          background: $success-green;
+        }
+        .status-text {
+          color: $success-green;
+        }
+      }
+      
+      &.full {
+        .status-icon {
+          background: $danger-red;
+        }
+        .status-text {
+          color: $danger-red;
+        }
+      }
+    }
+  }
+}
+
+// Stepper de progreso
+.stepper-container {
+  margin-bottom: 32px;
+  
+  .stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      position: relative;
+      
+      &:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 100%;
+        width: 24px;
+        height: 2px;
+        background: #e5e7eb;
+        transition: background-color 0.3s;
+      }
+      
+      &.completed:not(:last-child)::after {
+        background: $primary-blue;
+      }
+      
+      .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease-in-out;
+        border: 2px solid #e5e7eb;
+        background: white;
+        color: #6b7280;
+      }
+      
+      .step-title {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 500;
+        text-align: center;
+        transition: color 0.3s;
+      }
+      
+      &.active {
+        .step-circle {
+          background: $primary-blue;
+          border-color: $primary-blue;
+          color: white;
+        }
+        
+        .step-title {
+          color: $primary-blue;
+          font-weight: 600;
+        }
+      }
+      
+      &.completed {
+        .step-circle {
+          background: $success-green;
+          border-color: $success-green;
+          color: white;
+          animation: stepComplete 0.4s ease-out;
+        }
+        
+        .step-title {
+          color: $success-green;
+        }
+      }
+    }
+  }
+}
+
+// Contenido de los pasos
+.step-content {
+  margin-bottom: 24px;
+  
+  .step-form {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    animation: fadeInUp 0.4s ease-out;
+  }
+  
+  .form-section {
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0 0 24px 0;
+      text-align: center;
+    }
+  }
+}
+
+// Grupos de tiempo
+.time-group {
+  margin-bottom: 24px;
+  
+  .time-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+    
+    svg {
+      color: $primary-blue;
+    }
+  }
+  
+  .datetime-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+}
+
+// Grupos de input
+.input-group {
+  margin-bottom: 20px;
+  
+  .input-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+  
+  // Inputs de texto
+  .text-input,
+  .date-input,
+  .time-input,
+  .select-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 16px;
+    color: #111827;
+    background: white;
+    transition: all 0.2s ease-in-out;
+    
+    &:focus {
+      outline: none;
+      border-color: $primary-blue;
+      box-shadow: 0 0 0 3px rgba($primary-blue, 0.1);
+    }
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+    
+    &.error {
+      border-color: $danger-red;
+      box-shadow: 0 0 0 3px rgba($danger-red, 0.1);
+    }
+  }
+  
+  // Input con icono
+  position: relative;
+  
+  .input-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+  }
+  
+  .card-input {
+    padding-right: 48px;
+  }
+  
+  .error-message {
+    color: $danger-red;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+}
+
+// Grid de tipos de vehículo
+.vehicle-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  
+  .vehicle-type-option {
+    cursor: pointer;
+    
+    .vehicle-type-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      transition: all 0.2s ease-in-out;
+      background: white;
+      
+      .vehicle-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+        display: block;
+      }
+      
+      .vehicle-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #374151;
+      }
+      
+      &:hover {
+        border-color: $primary-blue;
+        background: rgba($primary-blue, 0.02);
+      }
+    }
+    
+    &.selected .vehicle-type-card {
+      border-color: $primary-blue;
+      background: rgba($primary-blue, 0.05);
+      
+      .vehicle-label {
+        color: $primary-blue;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Detalles del vehículo
+.vehicle-details {
+  margin-top: 24px;
+  
+  .details-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+  }
+  
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// Métodos de pago
+.payment-methods {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  
+  .payment-method-option {
+    cursor: pointer;
+    
+    .payment-method-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease-in-out;
+      background: white;
+      
+      .payment-icon {
+        font-size: 24px;
+      }
+      
+      .payment-label {
+        font-size: 16px;
+        font-weight: 500;
+        color: #374151;
+      }
+      
+      &:hover {
+        border-color: $primary-blue;
+        background: rgba($primary-blue, 0.02);
+      }
+    }
+    
+    &.selected .payment-method-card {
+      border-color: $primary-blue;
+      background: rgba($primary-blue, 0.05);
+      
+      .payment-label {
+        color: $primary-blue;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Campos de tarjeta
+.card-fields {
+  margin-top: 24px;
+  
+  .card-details {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+  }
+}
+
+// Checkbox personalizado
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  margin-top: 16px;
+  
+  .checkbox-input {
+    display: none;
+    
+    &:checked + .checkbox-custom {
+      background: $primary-blue;
+      border-color: $primary-blue;
+      
+      &::after {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+  
+  .checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+    background: white;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      width: 4px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg) scale(0);
+      opacity: 0;
+      transition: all 0.2s ease-in-out;
+    }
+  }
+}
+
+// Información de pago
+.payment-info {
+  margin-top: 24px;
+  
+  .info-card {
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .info-icon {
+      color: $primary-blue;
+      flex-shrink: 0;
+    }
+    
+    p {
+      color: #6b7280;
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Resumen de tiempo
+.time-summary {
+  margin-top: 24px;
+  
+  .summary-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      
+      &:not(:last-child) {
+        border-bottom: 1px solid #e2e8f0;
+      }
+      
+      .summary-icon {
+        color: $primary-blue;
+        flex-shrink: 0;
+      }
+      
+      .summary-content {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        .summary-label {
+          color: #6b7280;
+          font-size: 14px;
+        }
+        
+        .summary-value {
+          font-weight: 600;
+          color: #111827;
+          
+          &.price {
+            color: $success-green;
+            font-size: 16px;
+          }
+        }
+      }
+    }
+  }
+  
+  .free-parking-notice {
+    background: linear-gradient(135deg, rgba($success-green, 0.1), rgba($success-green, 0.05));
+    border: 1px solid rgba($success-green, 0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $success-green;
+    font-weight: 600;
+    font-size: 14px;
+    
+    .notice-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+// Avisos de ayuda
+.help-notice {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  
+  .help-icon {
+    color: $primary-blue;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  p {
+    color: #0c4a6e;
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Navegación de pasos
+.step-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  
+  .nav-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+    border: none;
+    cursor: pointer;
+    
+    &.secondary {
+      background: #f3f4f6;
+      color: #374151;
+      
+      &:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
+    
+    &.primary {
+      background: linear-gradient(135deg, $primary-blue, $primary-blue-dark);
+      color: white;
+      box-shadow: 0 2px 8px rgba($primary-blue, 0.2);
+      flex: 1;
+      justify-content: center;
+      
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 16px rgba($primary-blue, 0.3);
+      }
+      
+      &:active:not(:disabled) {
+        transform: translateY(0);
+      }
+      
+      &:disabled {
+        background: #d1d5db;
+        cursor: not-allowed;
+        box-shadow: none;
+        
+        &:hover {
+          transform: none;
+        }
+      }
+      
+      &.complete {
+        background: linear-gradient(135deg, $success-green, color.adjust($success-green, $lightness: -10%));
+        box-shadow: 0 2px 8px rgba($success-green, 0.2);
+        
+        &:hover:not(:disabled) {
+          box-shadow: 0 4px 16px rgba($success-green, 0.3);
+        }
+      }
+    }
+  }
+}
+
+// Resumen sticky
+.booking-summary-sticky {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: slideInFromBottom 0.4s ease-out;
+  
+  .summary-content {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 16px;
+    
+    .summary-header {
+      margin-bottom: 12px;
+      
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+      }
+    }
+    
+    .summary-details {
+      margin-bottom: 12px;
+      
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        
+        .label {
+          color: #6b7280;
+          font-size: 14px;
+        }
+        
+        .value {
+          font-weight: 500;
+          color: #111827;
+          font-size: 14px;
+        }
+      }
+    }
+    
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 1px solid #e5e7eb;
+      
+      .total-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+      }
+      
+      .total-price {
+        font-size: 20px;
+        font-weight: 700;
+        color: $success-green;
+      }
+    }
+    
+    .free-notice {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba($success-green, 0.1);
+      color: $success-green;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      margin-top: 8px;
+      
+      .notice-icon {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 640px) {
+  .booking-container {
+    padding: 12px;
+  }
+  
+  .parking-summary-card {
+    padding: 16px;
+    margin-bottom: 20px;
+    
+    .parking-header {
+      gap: 12px;
+      
+      .parking-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+      }
+      
+      .parking-info {
+        .parking-name {
+          font-size: 16px;
+        }
+        
+        .parking-address {
+          font-size: 13px;
+        }
+      }
+    }
+  }
+  
+  .stepper-container {
+    margin-bottom: 24px;
+    
+    .stepper {
+      gap: 16px;
+      
+      .step {
+        .step-circle {
+          width: 36px;
+          height: 36px;
+          font-size: 12px;
+        }
+        
+        .step-title {
+          font-size: 11px;
+        }
+        
+        &:not(:last-child)::after {
+          width: 16px;
+        }
+      }
+    }
+  }
+  
+  .step-form {
+    padding: 20px;
+  }
+  
+  .vehicle-type-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-button {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+}
+
+// Estados de carga
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+// Dark mode support (opcional)
+@media (prefers-color-scheme: dark) {
+  :host {
+    background: #111827;
+  }
+  
+  .parking-summary-card,
+  .step-form {
+    background: #1f2937;
+    border-color: #374151;
+    
+    .section-title,
+    .parking-name {
+      color: #f9fafb;
+    }
+    
+    .parking-address,
+    .time-group-title,
+    .input-label {
+      color: #d1d5db;
+    }
+  }
+  
+  .text-input,
+  .date-input,
+  .time-input,
+  .select-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+    
+    &:focus {
+      border-color: $primary-blue;
+    }
+  }
+  
+  .booking-summary-sticky {
+    background: #1f2937;
+    border-color: #374151;
+    
+    .summary-header h4,
+    .total-label,
+    .summary-row .value {
+      color: #f9fafb;
+    }
+    
+    .summary-row .label {
+      color: #d1d5db;
+    }
+  }
+}

@@ -1,0 +1,75 @@
+ <!-- Modern Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 md:hidden
+               bg-white/95 backdrop-blur-lg border-t border-gray-200/50
+               shadow-2xl shadow-black/5"
+         style="padding-bottom: env(safe-area-inset-bottom, 8px);">
+      
+      <!-- Navigation Container -->
+      <div class="px-2 pt-2 pb-1">
+        <div class="flex items-center justify-around max-w-sm mx-auto">
+          
+          <!-- Navigation Items -->
+          <button 
+            *ngFor="let item of navItems; trackBy: trackNavItem"
+            (click)="onNavClick(item.route)"
+            [class]="getNavItemClasses(item.route)"
+            [attr.aria-label]="getAriaLabel(item)"
+            type="button"
+            class="relative flex flex-col items-center justify-center
+                   min-w-[60px] py-2 px-3 rounded-2xl
+                   transition-all duration-300 ease-out
+                   active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            
+            <!-- Icon Container -->
+            <div class="relative mb-1.5 transition-transform duration-300"
+                 [class.scale-110]="isActiveRoute(item.route)">
+              
+              <!-- SVG Icon -->
+              <svg class="w-6 h-6 transition-all duration-300"
+                   [class]="getIconClasses(item.route)"
+                   fill="none" 
+                   stroke="currentColor" 
+                   viewBox="0 0 24 24"
+                   xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" 
+                      stroke-linejoin="round" 
+                      stroke-width="2" 
+                      [attr.d]="item.iconPath"/>
+              </svg>
+              
+              <!-- Badge -->
+              <span *ngIf="item.badge && item.badge > 0"
+                    class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px]
+                           bg-gradient-to-r from-red-500 to-red-600
+                           text-white text-xs font-bold
+                           rounded-full flex items-center justify-center
+                           shadow-lg shadow-red-500/30
+                           animate-pulse ring-2 ring-white
+                           transform scale-110"
+                    [attr.aria-label]="item.badge + ' notificaciones'">
+                {{ item.badge > 99 ? '99+' : item.badge }}
+              </span>
+            </div>
+            
+            <!-- Label -->
+            <span class="text-xs font-medium leading-none text-center
+                         transition-all duration-300"
+                  [class]="getLabelClasses(item.route)">
+              {{ item.label }}
+            </span>
+            
+            <!-- Active Indicator Dot -->
+            <div *ngIf="isActiveRoute(item.route)"
+                 class="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2
+                        w-1 h-1 bg-blue-600 rounded-full
+                        animate-pulse shadow-lg shadow-blue-600/50">
+            </div>
+          </button>
+        </div>
+      </div>
+      
+      <!-- iOS Home Indicator -->
+      <div class="flex justify-center pb-1">
+        <div class="w-32 h-1 bg-gray-300/60 rounded-full"></div>
+      </div>
+    </nav>

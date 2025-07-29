@@ -1,0 +1,672 @@
+// loading.component.scss
+@use 'tailwindcss/base';
+@use 'tailwindcss/components';
+@use 'tailwindcss/utilities';
+
+// Component root
+:host {
+  @apply block;
+}
+
+// Loading container
+.loading-container {
+  @apply relative;
+  
+  &.overlay-mode {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  &.fullscreen-mode {
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  }
+}
+
+// Spinner animations and styles
+.spinner-wrapper {
+  .spinner-ring {
+    border-color: #e5e7eb;
+  }
+  
+  .spinner-active {
+    animation: spin 1s linear infinite;
+    border-top-color: transparent;
+    border-right-color: transparent;
+  }
+}
+
+// Custom spin animation (smoother than Tailwind default)
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Progress bar animations
+.progress-container {
+  overflow: hidden;
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 100%);
+  
+  .progress-bar-indeterminate {
+    width: 40%;
+    animation: progress-indeterminate 2s infinite linear;
+  }
+  
+  .progress-bar-determinate {
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    left: -40%;
+    right: 100%;
+  }
+  60% {
+    left: 100%;
+    right: -40%;
+  }
+  100% {
+    left: 100%;
+    right: -40%;
+  }
+}
+
+// Enhanced bounce animation for dots
+.dots-container {
+  .dot {
+    animation: bounce-custom 1.4s ease-in-out infinite;
+    
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+}
+
+@keyframes bounce-custom {
+  0%, 80%, 100% {
+    transform: scale(0.8) translateY(0);
+    opacity: 0.7;
+  }
+  40% {
+    transform: scale(1.2) translateY(-20px);
+    opacity: 1;
+  }
+}
+
+// Pulse animation enhancements
+.pulse-container {
+  .pulse-circle {
+    animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  }
+  
+  .pulse-inner {
+    animation: pulse-inner 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-inner {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+// Skeleton loading with shimmer effect
+.skeleton-wrapper {
+  .skeleton-item {
+    position: relative;
+    overflow: hidden;
+    
+    // Shimmer effect overlay
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+      );
+      animation: shimmer 2s infinite;
+      z-index: 1;
+    }
+    
+    // Skeleton elements
+    > div {
+      position: relative;
+      z-index: 0;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Custom loading (parking themed)
+.custom-wrapper {
+  .parking-icon-wrapper {
+    position: relative;
+    
+    .parking-icon {
+      animation: bounce-gentle 2s ease-in-out infinite;
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+      
+      &::after {
+        content: '';
+        position: absolute;
+        inset: -4px;
+        border-radius: inherit;
+        background: linear-gradient(45deg, #3b82f6, #1d4ed8, #3b82f6);
+        z-index: -1;
+        animation: rotate-gradient 3s linear infinite;
+        opacity: 0.3;
+      }
+    }
+  }
+  
+  .loading-dots {
+    div {
+      animation: pulse-dots 1.5s ease-in-out infinite;
+      
+      &:nth-child(1) { animation-delay: 0s; }
+      &:nth-child(2) { animation-delay: 0.3s; }  
+      &:nth-child(3) { animation-delay: 0.6s; }
+    }
+  }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.05);
+  }
+}
+
+@keyframes rotate-gradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-dots {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+}
+
+// Size variants
+.size-xs {
+  .loading-message {
+    @apply text-xs;
+  }
+}
+
+.size-sm {
+  .loading-message {
+    @apply text-sm;
+  }
+}
+
+.size-md {
+  .loading-message {
+    @apply text-base;
+  }
+}
+
+.size-lg {
+  .loading-message {
+    @apply text-lg;
+  }
+  
+  .dots-container .dot {
+    transform-origin: center;
+  }
+}
+
+.size-xl {
+  .loading-message {
+    @apply text-xl;
+  }
+  
+  .parking-icon {
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+  }
+}
+
+// Color variants for enhanced theming
+.color-blue {
+  .spinner-active {
+    @apply border-blue-600;
+  }
+  
+  .progress-bar-indeterminate,
+  .progress-bar-determinate {
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  }
+  
+  .dot {
+    @apply bg-blue-600;
+  }
+  
+  .parking-icon {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  }
+}
+
+.color-green {
+  .spinner-active {
+    @apply border-green-600;
+  }
+  
+  .progress-bar-indeterminate,
+  .progress-bar-determinate {
+    background: linear-gradient(90deg, #059669, #047857);
+  }
+  
+  .dot {
+    @apply bg-green-600;
+  }
+  
+  .parking-icon {
+    background: linear-gradient(135deg, #059669, #047857);
+  }
+}
+
+.color-purple {
+  .spinner-active {
+    @apply border-purple-600;
+  }
+  
+  .progress-bar-indeterminate,
+  .progress-bar-determinate {
+    background: linear-gradient(90deg, #9333ea, #7c3aed);
+  }
+  
+  .dot {
+    @apply bg-purple-600;
+  }
+  
+  .parking-icon {
+    background: linear-gradient(135deg, #9333ea, #7c3aed);
+  }
+}
+
+.color-amber {
+  .spinner-active {
+    @apply border-amber-600;
+  }
+  
+  .progress-bar-indeterminate,
+  .progress-bar-determinate {
+    background: linear-gradient(90deg, #d97706, #b45309);
+  }
+  
+  .dot {
+    @apply bg-amber-600;
+  }
+  
+  .parking-icon {
+    background: linear-gradient(135deg, #d97706, #b45309);
+  }
+}
+
+.color-red {
+  .spinner-active {
+    @apply border-red-600;
+  }
+  
+  .progress-bar-indeterminate,
+  .progress-bar-determinate {
+    background: linear-gradient(90deg, #dc2626, #b91c1c);
+  }
+  
+  .dot {
+    @apply bg-red-600;
+  }
+  
+  .parking-icon {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+  }
+}
+
+// Container mode specific styles
+.mode-overlay {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  .loading-content {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+.mode-card {
+  .loading-content {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .loading-container {
+    &.fullscreen-mode,
+    &.overlay-mode {
+      .loading-content {
+        padding: 1.5rem;
+        margin: 1rem;
+      }
+    }
+  }
+  
+  .skeleton-wrapper {
+    .skeleton-item {
+      padding: 0.75rem;
+    }
+  }
+  
+  .custom-wrapper {
+    .parking-icon {
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  .progress-container {
+    height: 8px;
+  }
+  
+  .skeleton-wrapper {
+    .skeleton-item {
+      padding: 1.5rem;
+    }
+  }
+}
+
+// Accessibility improvements
+@media (prefers-reduced-motion: reduce) {
+  .spinner-active,
+  .dot,
+  .pulse-circle,
+  .pulse-inner,
+  .parking-icon {
+    animation: none !important;
+  }
+  
+  .skeleton-item::before {
+    animation: none !important;
+  }
+  
+  .progress-bar-indeterminate {
+    animation: none !important;
+    width: 100%;
+  }
+  
+  // Provide static visual feedback when animations are disabled
+  .loading-content {
+    opacity: 0.8;
+    
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .spinner-ring {
+    @apply border-gray-800;
+  }
+  
+  .spinner-active {
+    @apply border-black;
+  }
+  
+  .dot,
+  .pulse-circle,
+  .pulse-inner {
+    @apply bg-black;
+  }
+  
+  .progress-container {
+    @apply bg-gray-300;
+    
+    .progress-bar-indeterminate,
+    .progress-bar-determinate {
+      @apply bg-black;
+    }
+  }
+  
+  .skeleton-item {
+    > div {
+      @apply bg-gray-400;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .loading-container {
+    &.fullscreen-mode {
+      background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+    }
+    
+    &.card-mode {
+      @apply bg-gray-800 border-gray-700;
+    }
+    
+    &.overlay-mode {
+      .loading-content {
+        background: rgba(31, 41, 55, 0.95);
+        border: 1px solid rgba(75, 85, 99, 0.3);
+      }
+    }
+  }
+  
+  .loading-message {
+    @apply text-gray-300;
+  }
+  
+  .progress-container {
+    @apply bg-gray-700;
+  }
+  
+  .skeleton-item {
+    @apply bg-gray-800 border-gray-700;
+    
+    > div {
+      @apply bg-gray-700;
+    }
+    
+    &::before {
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(75, 85, 99, 0.4) 50%,
+        transparent 100%
+      );
+    }
+  }
+}
+
+// Focus states for accessibility
+.loading-container:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+// Print styles
+@media print {
+  .loading-container {
+    @apply hidden;
+  }
+}
+
+// Loading content transitions
+.loading-content {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.entering {
+    animation: fadeInScale 0.4s ease-out;
+  }
+  
+  &.leaving {
+    animation: fadeOutScale 0.3s ease-in;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeOutScale {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+}
+
+// Message styling enhancements
+.loading-message {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  line-height: 1.5;
+  
+  &.with-icon {
+    @apply flex items-center justify-center space-x-2;
+  }
+}
+
+// Performance optimizations
+.spinner-active,
+.dot,
+.pulse-circle,
+.parking-icon {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.skeleton-item::before {
+  will-change: left;
+}
+
+// Specific skeleton variants
+.skeleton-item {
+  &.variant-list {
+    @apply bg-white rounded-xl border border-gray-100;
+  }
+  
+  &.variant-card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100;
+  }
+  
+  &.variant-table {
+    @apply bg-white border-b border-gray-100;
+    
+    &:last-child {
+      @apply border-b-0;
+    }
+  }
+  
+  &.variant-text {
+    @apply bg-transparent;
+    
+    > div {
+      @apply bg-gray-200 rounded;
+    }
+  }
+}
+
+// Loading states for better UX
+.loading-wrapper {
+  &.loading-fast {
+    .spinner-active {
+      animation-duration: 0.6s;
+    }
+    
+    .dot {
+      animation-duration: 1s;
+    }
+  }
+  
+  &.loading-slow {
+    .spinner-active {
+      animation-duration: 2s;
+    }
+    
+    .dot {
+      animation-duration: 2s;
+    }
+  }
+}
+
+// Custom scrollbar for overflow content
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+  
+  &:hover {
+    @apply bg-gray-400;
+  }
+}

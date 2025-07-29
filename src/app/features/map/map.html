@@ -1,0 +1,94 @@
+<div class="map-container h-screen relative bg-gray-100">
+  <!-- Map Container -->
+  <div #mapContainer class="absolute inset-0 z-0"></div>
+
+  <!-- Loading Overlay -->
+  @if (isLoading()) {
+    <div class="absolute inset-0 z-50 bg-white bg-opacity-90 flex items-center justify-center">
+      <app-loading 
+        type="pulse" 
+        message="Cargando mapa..."
+        class="text-blue-500">
+      </app-loading>
+    </div>
+  }
+
+  <!-- Header with Search -->
+  <div class="absolute top-0 left-0 right-0 z-40 bg-white shadow-sm">
+    <div class="flex items-center p-4 space-x-3">
+      <!-- Search Bar -->
+      <div class="flex-1">
+        <app-search-bar
+          placeholder="Buscar parkings..."
+          (searchSubmit)="onSearch($event)"
+          [showFilters]="false">
+        </app-search-bar>
+      </div>
+
+      <!-- Filter Toggle -->
+      <button 
+        (click)="toggleFilters()"
+        [class]="showFilters() ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'"
+        class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Counter -->
+  @if (hasSearched() && !isLoading()) {
+    <div class="absolute top-20 left-4 z-30 bg-white rounded-lg shadow-sm px-3 py-2">
+      <span class="text-sm text-gray-600">
+        {{ visibleParkings().length }} parkings encontrados
+      </span>
+    </div>
+  }
+
+  <!-- Map Controls -->
+  <div class="absolute bottom-4 right-4 z-30 flex flex-col space-y-2">
+    <!-- Zoom to User Location -->
+    @if (userLocation()) {
+      <button 
+        (click)="zoomToUserLocation()"
+        class="bg-white p-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+        title="Mi ubicación">
+        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+      </button>
+    }
+
+    <!-- Map Style Toggle -->
+    <button 
+      (click)="toggleMapStyle()"
+      class="bg-white p-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+      [title]="mapStyle() === 'default' ? 'Vista satélite' : 'Vista normal'">
+      <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- No Results Message -->
+  @if (!isLoading() && hasSearched() && visibleParkings().length === 0) {
+    <div class="absolute inset-x-4 top-32 z-30 bg-white rounded-lg shadow-sm p-6 text-center">
+      <div class="text-gray-400 mb-2">
+        <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-1">No se encontraron parkings</h3>
+      <p class="text-gray-600">Intenta buscar en otra zona o ajusta los filtros</p>
+      @if (showFilters()) {
+        <button 
+          (click)="clearFilters()"
+          class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
+          Limpiar filtros
+        </button>
+      }
+    </div>
+  }
+</div>

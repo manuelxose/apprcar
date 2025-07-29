@@ -1,0 +1,815 @@
+<!-- profile.component.html -->
+<div class="profile-container min-h-screen bg-gray-50">
+  
+  <!-- Loading State -->
+  <app-loading *ngIf="loading()" type="skeleton" mode="fullscreen" message="Cargando perfil..."></app-loading>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading() && user()" class="profile-content">
+    
+    <!-- Profile Header -->
+    <div class="profile-header bg-white shadow-sm">
+      <div class="header-content max-w-4xl mx-auto px-4 py-6">
+        
+        <!-- User Info Row -->
+        <div class="user-info-row flex items-start justify-between mb-6">
+          
+          <!-- Avatar and Basic Info -->
+          <div class="user-basic-info flex items-center space-x-4">
+            
+            <!-- Avatar -->
+            <div class="user-avatar relative">
+              <div *ngIf="user()?.profile?.avatar; else avatarPlaceholder">
+                <img 
+                  [src]="user()!.profile!.avatar" 
+                  [alt]="userName()"
+                  class="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg">
+              </div>
+              <ng-template #avatarPlaceholder>
+                <div class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-r from-blue-500 to-blue-600 
+                            rounded-2xl flex items-center justify-center shadow-lg">
+                  <span class="text-white font-bold text-2xl md:text-3xl">
+                    {{ userInitials() }}
+                  </span>
+                </div>
+              </ng-template>
+              
+              <!-- Edit Avatar Button -->
+              <button class="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full shadow-lg 
+                           border-2 border-gray-100 flex items-center justify-center
+                           hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Name and Email -->
+            <div class="user-details">
+              <h1 class="text-xl md:text-2xl font-bold text-gray-900 mb-1">
+                {{ userName() || 'Usuario' }}
+              </h1>
+              <p class="text-gray-600 text-sm md:text-base mb-2">
+                {{ user()?.email }}
+              </p>
+              <div class="user-badges flex flex-wrap gap-2">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                           bg-green-100 text-green-800">
+                  <div class="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
+                  Verificado
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Header Actions -->
+          <div class="header-actions relative">
+            <button 
+              (click)="toggleMenu()"
+              class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 
+                     rounded-xl transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+              </svg>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div *ngIf="showMenu()" 
+                 class="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-lg border border-gray-100 py-2 z-50">
+              <button 
+                (click)="exportData(); closeMenu()"
+                class="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Exportar mis datos
+              </button>
+              <button 
+                (click)="logout(); closeMenu()"
+                class="w-full flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                Cerrar sesión
+              </button>
+              <hr class="my-2 border-gray-100">
+              <button 
+                (click)="deleteAccount(); closeMenu()"
+                class="w-full flex items-center px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                <svg class="w-5 h-5 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Eliminar cuenta
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- User Stats -->
+        <div class="user-stats grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="stat-card bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-4 border border-blue-200">
+            <div class="stat-number text-2xl font-bold text-blue-700">
+              {{ userStats().vehicles }}
+            </div>
+            <div class="stat-label text-sm text-blue-600">
+              Vehículos
+            </div>
+          </div>
+          
+          <div class="stat-card bg-gradient-to-r from-green-50 to-green-100 rounded-2xl p-4 border border-green-200">
+            <div class="stat-number text-2xl font-bold text-green-700">
+              {{ userStats().activeReservations }}
+            </div>
+            <div class="stat-label text-sm text-green-600">
+              Reservas activas
+            </div>
+          </div>
+          
+          <div class="stat-card bg-gradient-to-r from-purple-50 to-purple-100 rounded-2xl p-4 border border-purple-200">
+            <div class="stat-number text-2xl font-bold text-purple-700">
+              {{ userStats().completedReservations }}
+            </div>
+            <div class="stat-label text-sm text-purple-600">
+              Completadas
+            </div>
+          </div>
+          
+          <div class="stat-card bg-gradient-to-r from-amber-50 to-amber-100 rounded-2xl p-4 border border-amber-200">
+            <div class="stat-number text-2xl font-bold text-amber-700">
+              €{{ userStats().totalSpent.toFixed(2) }}
+            </div>
+            <div class="stat-label text-sm text-amber-600">
+              Total gastado
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="tab-navigation bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="flex space-x-1 overflow-x-auto pb-px">
+          <button 
+            *ngFor="let tab of tabs(); trackBy: trackByTabId"
+            (click)="setActiveTab(tab.id)"
+            [class]="'flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-t-xl transition-all duration-200 whitespace-nowrap ' +
+                     (activeTab() === tab.id ? 
+                      'text-blue-600 bg-blue-50 border-b-2 border-blue-600' : 
+                      'text-gray-600 hover:text-gray-900 hover:bg-gray-50')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="tab.icon"/>
+            </svg>
+            <span>{{ tab.label }}</span>
+            <span *ngIf="tab.count && tab.count > 0" 
+                  class="ml-1 px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full">
+              {{ tab.count }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="tab-content max-w-4xl mx-auto px-4 py-8">
+      
+      <!-- Profile Tab -->
+      <div *ngIf="activeTab() === 'profile'" class="profile-tab space-y-8">
+        
+        <!-- Personal Information Form -->
+        <div class="form-section bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="section-header mb-6">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0z M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              Información Personal
+            </h2>
+            <p class="text-gray-600 text-sm">Actualiza tu información básica y contacto</p>
+          </div>
+          
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="space-y-6">
+            
+            <!-- Name Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="form-field">
+                <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre *
+                </label>
+                <input 
+                  id="firstName"
+                  type="text" 
+                  formControlName="firstName"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Tu nombre">
+                <div *ngIf="profileForm.get('firstName')?.touched && profileForm.get('firstName')?.errors" 
+                     class="mt-1 text-sm text-red-600">
+                  El nombre es requerido
+                </div>
+              </div>
+              
+              <div class="form-field">
+                <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">
+                  Apellidos *
+                </label>
+                <input 
+                  id="lastName"
+                  type="text" 
+                  formControlName="lastName"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Tus apellidos">
+                <div *ngIf="profileForm.get('lastName')?.touched && profileForm.get('lastName')?.errors" 
+                     class="mt-1 text-sm text-red-600">
+                  Los apellidos son requeridos
+                </div>
+              </div>
+            </div>
+            
+            <!-- Contact Fields -->  
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="form-field">
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
+                </label>
+                <input 
+                  id="email"
+                  type="email" 
+                  formControlName="email"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="tu@email.com">
+                <div *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.errors" 
+                     class="mt-1 text-sm text-red-600">
+                  Email válido requerido
+                </div>
+              </div>
+              
+              <div class="form-field">
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                  Teléfono
+                </label>
+                <input 
+                  id="phone"
+                  type="tel" 
+                  formControlName="phone"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="+34 600 000 000">
+              </div>
+            </div>
+            
+            <!-- Preferences Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="form-field">
+                <label for="language" class="block text-sm font-medium text-gray-700 mb-2">
+                  Idioma
+                </label>
+                <select 
+                  id="language"
+                  formControlName="language"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option value="es">Español</option>
+                  <option value="en">English</option>
+                  <option value="fr">Français</option>
+                  <option value="de">Deutsch</option>
+                </select>
+              </div>
+              
+              <div class="form-field">
+                <label for="timezone" class="block text-sm font-medium text-gray-700 mb-2">
+                  Zona horaria
+                </label>
+                <select 
+                  id="timezone"
+                  formControlName="timezone"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option value="Europe/Madrid">Europa/Madrid</option>
+                  <option value="Europe/London">Europa/Londres</option>
+                  <option value="Europe/Paris">Europa/París</option>
+                  <option value="America/New_York">América/Nueva York</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Save Button -->
+            <div class="form-actions">
+              <button 
+                type="submit"
+                [disabled]="saving() || profileForm.invalid"
+                class="w-full md:w-auto px-8 py-3 bg-blue-600 text-white font-medium rounded-xl
+                       hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
+                       transition-all duration-200 flex items-center justify-center space-x-2">
+                <svg *ngIf="saving()" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <svg *ngIf="!saving()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>{{ saving() ? 'Guardando...' : 'Guardar cambios' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Vehicles Tab -->
+      <div *ngIf="activeTab() === 'vehicles'" class="vehicles-tab space-y-6">
+        
+        <!-- Add Vehicle Button -->
+        <div class="add-vehicle-section">
+          <button 
+            (click)="addVehicle()"
+            class="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-xl
+                   hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            <span>Añadir vehículo</span>
+          </button>
+        </div>
+        
+        <!-- Vehicles List -->
+        <div class="vehicles-list space-y-4">
+          <div 
+            *ngFor="let vehicle of vehicles(); trackBy: trackByVehicleId"
+            class="vehicle-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            
+            <div class="flex items-center justify-between">
+              <div class="vehicle-info flex-1">
+                <div class="flex items-center space-x-3 mb-2">
+                  <h3 class="text-lg font-semibold text-gray-900">
+                    {{ vehicle.make }} {{ vehicle.model }}
+                  </h3>
+                  <span *ngIf="vehicle.isDefault" 
+                        class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                    Por defecto
+                  </span>
+                </div>
+                
+                <div class="vehicle-details space-y-1 text-sm text-gray-600">
+                  <p>{{ getVehicleTypeLabel(vehicle.type) }} • {{ vehicle.year }}</p>
+                  <p *ngIf="vehicle.licensePlate">Matrícula: {{ vehicle.licensePlate }}</p>
+                  <p *ngIf="vehicle.color">Color: {{ vehicle.color }}</p>
+                </div>
+              </div>
+              
+              <div class="vehicle-actions flex items-center space-x-2">
+                <button 
+                  (click)="editVehicle(vehicle)"
+                  class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </button>
+                <button 
+                  (click)="removeVehicle(vehicle)"
+                  class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Empty State -->
+          <div *ngIf="vehicles().length === 0" 
+               class="empty-vehicles text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7z"/>
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+              No tienes vehículos registrados
+            </h3>
+            <p class="text-gray-600 mb-6">
+              Añade tus vehículos para facilitar las reservas de parking
+            </p>
+            <button 
+              (click)="addVehicle()"
+              class="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">
+              Añadir primer vehículo
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Reservations Tab -->
+      <div *ngIf="activeTab() === 'reservations'" class="reservations-tab space-y-6">
+        
+        <!-- Active Reservations -->
+        <div *ngIf="activeReservations().length > 0" class="active-reservations">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Reservas activas</h3>
+          <div class="space-y-4">
+            <div 
+              *ngFor="let reservation of activeReservations(); trackBy: trackByReservationId"
+              class="reservation-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6
+                     border-l-4 border-l-green-500">
+              
+              <div class="flex items-start justify-between">
+                <div class="reservation-info flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <span [class]="'px-2 py-1 text-xs font-medium rounded-full ' + getReservationStatusColor(reservation.status)">
+                      {{ getReservationStatusLabel(reservation.status) }}
+                    </span>
+                  </div>
+                  
+                  <h4 class="font-semibold text-gray-900 mb-1">
+                    {{ reservation.parkingName }}
+                  </h4>
+                  <p class="text-sm text-gray-600 mb-2">
+                    {{ reservation.address }}
+                  </p>
+                  
+                  <div class="reservation-details grid grid-cols-2 gap-4 text-sm">
+                    <div class="flex items-center text-gray-600">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M8 7V3a1 1 0 012 0v4h4V3a1 1 0 012 0v4h3a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"/>
+                      </svg>
+                      {{ reservation.startTime | date:'short' }}
+                    </div>
+                    <div class="flex items-center text-gray-600">
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                      </svg>
+                      €{{ reservation.totalCost?.toFixed(2) }}
+                    </div>
+                  </div>
+                </div>
+                
+                <button class="text-gray-400 hover:text-gray-600 transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Completed Reservations -->
+        <div *ngIf="completedReservations().length > 0" class="completed-reservations">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Historial de reservas</h3>
+          <div class="space-y-4">
+            <div 
+              *ngFor="let reservation of completedReservations().slice(0, 5); trackBy: trackByReservationId"
+              class="reservation-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+              
+              <div class="flex items-start justify-between">
+                <div class="reservation-info flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <span [class]="'px-2 py-1 text-xs font-medium rounded-full ' + getReservationStatusColor(reservation.status)">
+                      {{ getReservationStatusLabel(reservation.status) }}
+                    </span>
+                  </div>
+                  
+                  <h4 class="font-semibold text-gray-900 mb-1">
+                    {{ reservation.parkingName }}
+                  </h4>
+                  <p class="text-sm text-gray-600 mb-2">
+                    {{ reservation.address }}
+                  </p>
+                  
+                  <div class="text-sm text-gray-500">
+                    {{ reservation.startTime | date:'short' }} • €{{ reservation.totalCost?.toFixed(2) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div *ngIf="reservations().length === 0" 
+             class="empty-reservations text-center py-12">
+          <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M8 7V3a1 1 0 012 0v4h4V3a1 1 0 012 0v4h3a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"/>
+          </svg>
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">
+            No tienes reservas
+          </h3>
+          <p class="text-gray-600 mb-6">
+            Cuando hagas tu primera reserva aparecerá aquí
+          </p>
+          <button 
+            routerLink="/parkings"
+            class="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">
+            Buscar parking
+          </button>
+        </div>
+      </div>
+      
+      <!-- Payment Methods Tab -->
+      <div *ngIf="activeTab() === 'payments'" class="payments-tab space-y-6">
+        
+        <!-- Add Payment Method Button -->
+        <div class="add-payment-section">
+          <button 
+            (click)="addPaymentMethod()"
+            class="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-xl
+                   hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            <span>Añadir método de pago</span>
+          </button>
+        </div>
+        
+        <!-- Payment Methods List -->
+        <div class="payment-methods-list space-y-4">
+          <div 
+            *ngFor="let method of paymentMethods(); trackBy: trackByPaymentId"
+            class="payment-card bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            
+            <div class="flex items-center justify-between">
+              <div class="payment-info flex items-center space-x-4">
+                
+                <!-- Payment Icon -->
+                <div class="payment-icon w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                  <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getPaymentMethodIcon(method)"/>
+                  </svg>
+                </div>
+                
+                <!-- Payment Details -->
+                <div class="payment-details">
+                  <div class="flex items-center space-x-2 mb-1">
+                    <h4 class="font-semibold text-gray-900">
+                      <span *ngIf="method.type === 'card'">
+                        **** {{ method.cardLast4 }}
+                      </span>
+                      <span *ngIf="method.type === 'paypal'">
+                        PayPal
+                      </span>
+                    </h4>
+                    <span *ngIf="method.isDefault" 
+                          class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                      Por defecto
+                    </span>
+                  </div>
+                  
+                  <p class="text-sm text-gray-600">
+                    <span *ngIf="method.type === 'card'">
+                      {{ method.cardBrand?.toUpperCase() }} • Exp. {{ method.expiryMonth }}/{{ method.expiryYear }}
+                    </span>
+                    <span *ngIf="method.type === 'paypal'">
+                      {{ method.paypalEmail }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              
+              <button 
+                (click)="removePaymentMethod(method)"
+                class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Settings Tab -->
+      <div *ngIf="activeTab() === 'settings'" class="settings-tab space-y-8">
+        
+        <!-- Notifications Settings -->
+        <div class="notifications-section bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="section-header mb-6">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M15 17h5l-3.5-3.5a5.5 5.5 0 100-7l3.5-3.5H15m-6 14v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+              Notificaciones
+            </h2>
+            <p class="text-gray-600 text-sm">Configura cómo quieres recibir notificaciones</p>
+          </div>
+          
+          <form [formGroup]="notificationsForm" (ngSubmit)="saveNotifications()" class="space-y-4">
+            
+            <!-- Notification Toggles -->
+            <div class="space-y-4">
+              <div class="notification-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                <div class="notification-info">
+                  <h4 class="font-medium text-gray-900">Notificaciones por email</h4>
+                  <p class="text-sm text-gray-600">Recibe actualizaciones por correo electrónico</p>
+                </div>
+                <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" formControlName="emailNotifications" class="sr-only peer">
+                  <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+              
+              <div class="notification-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                <div class="notification-info">
+                  <h4 class="font-medium text-gray-900">Notificaciones push</h4>
+                  <p class="text-sm text-gray-600">Recibe notificaciones en tiempo real</p>
+                </div>
+                <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" formControlName="pushNotifications" class="sr-only peer">
+                  <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+              
+              <div class="notification-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                <div class="notification-info">
+                  <h4 class="font-medium text-gray-900">Recordatorios de reservas</h4>
+                  <p class="text-sm text-gray-600">Te avisamos antes de tus reservas</p>
+                </div>
+                <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" formControlName="reservationReminders" class="sr-only peer">
+                  <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+              
+              <div class="notification-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                <div class="notification-info">
+                  <h4 class="font-medium text-gray-900">Promociones y ofertas</h4>
+                  <p class="text-sm text-gray-600">Recibe descuentos y ofertas especiales</p>
+                </div>
+                <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" formControlName="promotions" class="sr-only peer">
+                  <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+            </div>
+            
+            <!-- Save Notifications Button -->
+            <div class="form-actions pt-4">
+              <button 
+                type="submit"
+                [disabled]="saving() || notificationsForm.invalid"
+                class="w-full md:w-auto px-8 py-3 bg-blue-600 text-white font-medium rounded-xl
+                       hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
+                       transition-all duration-200 flex items-center justify-center space-x-2">
+                <svg *ngIf="saving()" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <svg *ngIf="!saving()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>{{ saving() ? 'Guardando...' : 'Guardar preferencias' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Privacy & Preferences -->
+        <div class="preferences-section bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div class="section-header mb-6">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center">
+              <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              Privacidad y Preferencias
+            </h2>
+            <p class="text-gray-600 text-sm">Controla tu privacidad y personaliza tu experiencia</p>
+          </div>
+          
+          <form [formGroup]="preferencesForm" (ngSubmit)="savePreferences()" class="space-y-6">
+            
+            <!-- Search Preferences -->
+            <div class="preference-group">
+              <h4 class="text-lg font-semibold text-gray-900 mb-4">Búsqueda</h4>
+              
+              <div class="space-y-4">
+                <div class="form-field">
+                  <label for="defaultRadius" class="block text-sm font-medium text-gray-700 mb-2">
+                    Radio de búsqueda por defecto
+                  </label>
+                  <select 
+                    id="defaultRadius"
+                    formControlName="defaultRadius"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    <option value="500">500 metros</option>
+                    <option value="1000">1 kilómetro</option>
+                    <option value="2000">2 kilómetros</option>  
+                    <option value="5000">5 kilómetros</option>
+                  </select>
+                </div>
+                
+                <div class="preference-item flex items-center justify-between py-3">
+                  <div class="preference-info">
+                    <h5 class="font-medium text-gray-900">Ubicación automática</h5>
+                    <p class="text-sm text-gray-600">Usar tu ubicación actual para búsquedas</p>
+                  </div>
+                  <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" formControlName="autoLocation" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Privacy Settings -->
+            <div class="preference-group">
+              <h4 class="text-lg font-semibold text-gray-900 mb-4">Privacidad</h4>
+              
+              <div class="space-y-4">
+                <div class="preference-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                  <div class="preference-info">
+                    <h5 class="font-medium text-gray-900">Compartir ubicación</h5>
+                    <p class="text-sm text-gray-600">Permitir que otros usuarios vean tu ubicación aproximada</p>
+                  </div>
+                  <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" formControlName="shareLocation" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+                
+                <div class="preference-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                  <div class="preference-info">
+                    <h5 class="font-medium text-gray-900">Analíticas</h5>
+                    <p class="text-sm text-gray-600">Ayúdanos a mejorar la app compartiendo datos de uso anónimos</p>
+                  </div>
+                  <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" formControlName="allowAnalytics" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Accessibility Settings -->
+            <div class="preference-group">
+              <h4 class="text-lg font-semibold text-gray-900 mb-4">Accesibilidad</h4>
+              
+              <div class="space-y-4">
+                <div class="preference-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                  <div class="preference-info">
+                    <h5 class="font-medium text-gray-900">Alto contraste</h5>
+                    <p class="text-sm text-gray-600">Usar colores de alto contraste para mejor visibilidad</p>
+                  </div>
+                  <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" formControlName="highContrast" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+                
+                <div class="preference-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                  <div class="preference-info">
+                    <h5 class="font-medium text-gray-900">Texto grande</h5>
+                    <p class="text-sm text-gray-600">Aumentar el tamaño de fuente para mejor legibilidad</p>
+                  </div>
+                  <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" formControlName="largeText" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+                
+                <div class="preference-item flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                  <div class="preference-info">
+                    <h5 class="font-medium text-gray-900">Movimiento reducido</h5>
+                    <p class="text-sm text-gray-600">Reducir animaciones y transiciones</p>
+                  </div>
+                  <label class="toggle-switch relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" formControlName="reducedMotion" class="sr-only peer">
+                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Save Preferences Button -->
+            <div class="form-actions pt-4">
+              <button 
+                type="submit"
+                [disabled]="saving() || preferencesForm.invalid"
+                class="w-full md:w-auto px-8 py-3 bg-blue-600 text-white font-medium rounded-xl
+                       hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
+                       transition-all duration-200 flex items-center justify-center space-x-2">
+                <svg *ngIf="saving()" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <svg *ngIf="!saving()" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>{{ saving() ? 'Guardando...' : 'Guardar configuración' }}</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Menu Overlay -->
+  <div *ngIf="showMenu()" 
+       (click)="closeMenu()"
+       class="fixed inset-0 bg-black bg-opacity-50 z-40">
+  </div>
+</div>

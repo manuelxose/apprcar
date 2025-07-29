@@ -1,0 +1,807 @@
+{
+    "parkings": [
+        {
+            "id": "vigo-001",
+            "name": "Parking Plaza de España",
+            "description": "Parking subterráneo en el corazón de Vigo, cerca de todas las tiendas principales.",
+            "address": "Plaza de España, 1, 36202 Vigo, Pontevedra",
+            "location": {
+                "latitude": 42.2406,
+                "longitude": -8.7207,
+                "city": "Vigo",
+                "country": "España",
+                "postalCode": "36202",
+                "district": "Centro"
+            },
+            "type": "underground",
+            "status": "active",
+            "capacity": {
+                "total": 450,
+                "available": 127,
+                "reserved": 23,
+                "occupied": 300,
+                "spots": {
+                    "regular": 400,
+                    "disabled": 25,
+                    "electric": 15,
+                    "motorcycle": 10,
+                    "large": 0
+                }
+            },
+            "pricing": {
+                "currency": "EUR",
+                "freeMinutes": 15,
+                "rates": [
+                    {
+                        "id": "hourly-standard",
+                        "name": "Tarifa por hora",
+                        "type": "hourly",
+                        "price": 1.80,
+                        "maxDuration": 1440,
+                        "validDays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ],
+                        "validHours": {
+                            "start": "00:00",
+                            "end": "23:59"
+                        }
+                    },
+                    {
+                        "id": "daily-standard",
+                        "name": "Tarifa diaria",
+                        "type": "daily",
+                        "price": 18.00,
+                        "maxDuration": 1440
+                    }
+                ],
+                "specialRates": [
+                    {
+                        "id": "resident-discount",
+                        "name": "Descuento residente",
+                        "description": "Para residentes del distrito centro",
+                        "type": "resident",
+                        "discount": 20,
+                        "requirements": [
+                            "Empadronamiento en Vigo"
+                        ]
+                    }
+                ]
+            },
+            "features": {
+                "security": {
+                    "surveillance": true,
+                    "lighting": true,
+                    "guards": true,
+                    "gatedAccess": true,
+                    "emergencyButton": true
+                },
+                "accessibility": {
+                    "wheelchairAccess": true,
+                    "elevators": true,
+                    "disabledSpots": 25,
+                    "audioInstructions": false,
+                    "brailleSignage": true
+                },
+                "services": {
+                    "carWash": false,
+                    "valet": false,
+                    "electricCharging": true,
+                    "airPump": true,
+                    "restrooms": true,
+                    "wifi": true,
+                    "shopping": true
+                },
+                "payment": {
+                    "cash": true,
+                    "card": true,
+                    "mobile": true,
+                    "contactless": true,
+                    "subscription": true,
+                    "prepaid": false
+                },
+                "technology": {
+                    "app": true,
+                    "reservation": true,
+                    "realTimeAvailability": true,
+                    "digitalPayment": true,
+                    "smartParking": true,
+                    "licensePlateRecognition": true
+                }
+            },
+            "schedule": {
+                "is24Hours": true
+            },
+            "contact": {
+                "phone": "+34 986 123 456",
+                "email": "info@parkingplazaespana.com",
+                "emergency": "+34 986 123 457"
+            },
+            "images": [
+                "/assets/images/parkings/vigo-001-1.jpg",
+                "/assets/images/parkings/vigo-001-2.jpg"
+            ],
+            "rating": {
+                "average": 4.2,
+                "totalReviews": 342,
+                "distribution": {
+                    "5": 156,
+                    "4": 98,
+                    "3": 67,
+                    "2": 15,
+                    "1": 6
+                },
+                "lastUpdated": "2024-01-15T10:30:00Z"
+            },
+            "createdAt": "2023-01-15T09:00:00Z",
+            "updatedAt": "2024-01-15T10:30:00Z"
+        },
+        {
+            "id": "vigo-002",
+            "name": "Parking Príncipe",
+            "description": "Amplio parking en superficie cerca del puerto deportivo.",
+            "address": "Calle Príncipe, 15, 36202 Vigo, Pontevedra",
+            "location": {
+                "latitude": 42.2356,
+                "longitude": -8.7156,
+                "city": "Vigo",
+                "country": "España",
+                "postalCode": "36202",
+                "district": "Areal"
+            },
+            "type": "private",
+            "status": "active",
+            "capacity": {
+                "total": 200,
+                "available": 45,
+                "reserved": 12,
+                "occupied": 143,
+                "spots": {
+                    "regular": 180,
+                    "disabled": 10,
+                    "electric": 8,
+                    "motorcycle": 2,
+                    "large": 0
+                }
+            },
+            "pricing": {
+                "currency": "EUR",
+                "freeMinutes": 30,
+                "rates": [
+                    {
+                        "id": "hourly-standard",
+                        "name": "Tarifa por hora",
+                        "type": "hourly",
+                        "price": 1.50,
+                        "validDays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday"
+                        ],
+                        "validHours": {
+                            "start": "08:00",
+                            "end": "20:00"
+                        }
+                    },
+                    {
+                        "id": "hourly-night",
+                        "name": "Tarifa nocturna",
+                        "type": "hourly",
+                        "price": 1.00,
+                        "validDays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday"
+                        ],
+                        "validHours": {
+                            "start": "20:01",
+                            "end": "07:59"
+                        }
+                    },
+                    {
+                        "id": "hourly-weekend",
+                        "name": "Tarifa fin de semana",
+                        "type": "hourly",
+                        "price": 2.00,
+                        "validDays": [
+                            "saturday",
+                            "sunday"
+                        ]
+                    }
+                ]
+            },
+            "features": {
+                "security": {
+                    "surveillance": true,
+                    "lighting": true,
+                    "guards": false,
+                    "gatedAccess": false,
+                    "emergencyButton": false
+                },
+                "accessibility": {
+                    "wheelchairAccess": true,
+                    "elevators": false,
+                    "disabledSpots": 10,
+                    "audioInstructions": false,
+                    "brailleSignage": false
+                },
+                "services": {
+                    "carWash": true,
+                    "valet": false,
+                    "electricCharging": true,
+                    "airPump": false,
+                    "restrooms": false,
+                    "wifi": false,
+                    "shopping": false
+                },
+                "payment": {
+                    "cash": true,
+                    "card": true,
+                    "mobile": false,
+                    "contactless": true,
+                    "subscription": false,
+                    "prepaid": false
+                },
+                "technology": {
+                    "app": false,
+                    "reservation": false,
+                    "realTimeAvailability": false,
+                    "digitalPayment": false,
+                    "smartParking": false,
+                    "licensePlateRecognition": false
+                }
+            },
+            "schedule": {
+                "is24Hours": false,
+                "schedule": [
+                    {
+                        "dayOfWeek": "monday",
+                        "openTime": "07:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "tuesday",
+                        "openTime": "07:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "wednesday",
+                        "openTime": "07:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "thursday",
+                        "openTime": "07:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "friday",
+                        "openTime": "07:00",
+                        "closeTime": "23:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "saturday",
+                        "openTime": "08:00",
+                        "closeTime": "23:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "sunday",
+                        "openTime": "09:00",
+                        "closeTime": "21:00",
+                        "isClosed": false
+                    }
+                ]
+            },
+            "contact": {
+                "phone": "+34 986 234 567"
+            },
+            "rating": {
+                "average": 3.8,
+                "totalReviews": 89,
+                "distribution": {
+                    "5": 23,
+                    "4": 31,
+                    "3": 25,
+                    "2": 8,
+                    "1": 2
+                },
+                "lastUpdated": "2024-01-10T14:20:00Z"
+            },
+            "createdAt": "2023-03-10T10:00:00Z",
+            "updatedAt": "2024-01-10T14:20:00Z"
+        },
+        {
+            "id": "vigo-003",
+            "name": "Parking Centro Comercial Gran Vía",
+            "description": "Parking gratuito del centro comercial con más de 1000 plazas.",
+            "address": "Gran Vía de Vigo, 25, 36204 Vigo, Pontevedra",
+            "location": {
+                "latitude": 42.2289,
+                "longitude": -8.7003,
+                "city": "Vigo",
+                "country": "España",
+                "postalCode": "36204",
+                "district": "Travesía de Vigo"
+            },
+            "type": "shopping_center",
+            "status": "active",
+            "capacity": {
+                "total": 1200,
+                "available": 234,
+                "reserved": 0,
+                "occupied": 966,
+                "spots": {
+                    "regular": 1120,
+                    "disabled": 50,
+                    "electric": 20,
+                    "motorcycle": 10,
+                    "large": 0
+                }
+            },
+            "pricing": {
+                "currency": "EUR",
+                "freeMinutes": 120,
+                "rates": [
+                    {
+                        "id": "hourly-after-free",
+                        "name": "Después de 2h gratis",
+                        "type": "hourly",
+                        "price": 1.20,
+                        "validDays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday",
+                            "saturday",
+                            "sunday"
+                        ]
+                    }
+                ],
+                "specialRates": [
+                    {
+                        "id": "shopping-validation",
+                        "name": "Validación por compras",
+                        "description": "Gratis con compras superiores a 30€",
+                        "type": "member",
+                        "discount": 100,
+                        "requirements": [
+                            "Ticket de compra de 30€ o más"
+                        ]
+                    }
+                ]
+            },
+            "features": {
+                "security": {
+                    "surveillance": true,
+                    "lighting": true,
+                    "guards": true,
+                    "gatedAccess": false,
+                    "emergencyButton": true
+                },
+                "accessibility": {
+                    "wheelchairAccess": true,
+                    "elevators": true,
+                    "disabledSpots": 50,
+                    "audioInstructions": true,
+                    "brailleSignage": true
+                },
+                "services": {
+                    "carWash": false,
+                    "valet": false,
+                    "electricCharging": true,
+                    "airPump": true,
+                    "restrooms": true,
+                    "wifi": true,
+                    "shopping": true
+                },
+                "payment": {
+                    "cash": false,
+                    "card": true,
+                    "mobile": true,
+                    "contactless": true,
+                    "subscription": false,
+                    "prepaid": true
+                },
+                "technology": {
+                    "app": true,
+                    "reservation": false,
+                    "realTimeAvailability": true,
+                    "digitalPayment": true,
+                    "smartParking": true,
+                    "licensePlateRecognition": true
+                }
+            },
+            "schedule": {
+                "is24Hours": false,
+                "schedule": [
+                    {
+                        "dayOfWeek": "monday",
+                        "openTime": "09:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "tuesday",
+                        "openTime": "09:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "wednesday",
+                        "openTime": "09:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "thursday",
+                        "openTime": "09:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "friday",
+                        "openTime": "09:00",
+                        "closeTime": "23:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "saturday",
+                        "openTime": "09:00",
+                        "closeTime": "23:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "sunday",
+                        "openTime": "10:00",
+                        "closeTime": "22:00",
+                        "isClosed": false
+                    }
+                ]
+            },
+            "contact": {
+                "phone": "+34 986 345 678",
+                "website": "https://granviavigo.com/parking"
+            },
+            "rating": {
+                "average": 4.5,
+                "totalReviews": 567,
+                "distribution": {
+                    "5": 298,
+                    "4": 178,
+                    "3": 71,
+                    "2": 15,
+                    "1": 5
+                },
+                "lastUpdated": "2024-01-20T16:45:00Z"
+            },
+            "createdAt": "2022-11-01T12:00:00Z",
+            "updatedAt": "2024-01-20T16:45:00Z"
+        },
+        {
+            "id": "vigo-004",
+            "name": "Parking Hospital Álvaro Cunqueiro",
+            "description": "Parking del hospital con tarifas especiales para pacientes y acompañantes.",
+            "address": "Estrada Clara Campoamor, 341, 36312 Vigo, Pontevedra",
+            "location": {
+                "latitude": 42.1931,
+                "longitude": -8.6598,
+                "city": "Vigo",
+                "country": "España",
+                "postalCode": "36312",
+                "district": "Beade"
+            },
+            "type": "hospital",
+            "status": "active",
+            "capacity": {
+                "total": 800,
+                "available": 156,
+                "reserved": 44,
+                "occupied": 600,
+                "spots": {
+                    "regular": 720,
+                    "disabled": 60,
+                    "electric": 15,
+                    "motorcycle": 5,
+                    "large": 0
+                }
+            },
+            "pricing": {
+                "currency": "EUR",
+                "freeMinutes": 60,
+                "rates": [
+                    {
+                        "id": "hourly-standard",
+                        "name": "Tarifa general",
+                        "type": "hourly",
+                        "price": 1.00,
+                        "maxDuration": 1440
+                    },
+                    {
+                        "id": "daily-max",
+                        "name": "Máximo diario",
+                        "type": "daily",
+                        "price": 8.00
+                    }
+                ],
+                "specialRates": [
+                    {
+                        "id": "patient-discount",
+                        "name": "Descuento paciente",
+                        "description": "Para pacientes con cita médica",
+                        "type": "member",
+                        "discount": 50,
+                        "requirements": [
+                            "Justificante de cita médica"
+                        ]
+                    }
+                ]
+            },
+            "features": {
+                "security": {
+                    "surveillance": true,
+                    "lighting": true,
+                    "guards": true,
+                    "gatedAccess": true,
+                    "emergencyButton": true
+                },
+                "accessibility": {
+                    "wheelchairAccess": true,
+                    "elevators": true,
+                    "disabledSpots": 60,
+                    "audioInstructions": true,
+                    "brailleSignage": true
+                },
+                "services": {
+                    "carWash": false,
+                    "valet": false,
+                    "electricCharging": true,
+                    "airPump": false,
+                    "restrooms": true,
+                    "wifi": true,
+                    "shopping": false
+                },
+                "payment": {
+                    "cash": true,
+                    "card": true,
+                    "mobile": true,
+                    "contactless": true,
+                    "subscription": false,
+                    "prepaid": false
+                },
+                "technology": {
+                    "app": false,
+                    "reservation": false,
+                    "realTimeAvailability": true,
+                    "digitalPayment": true,
+                    "smartParking": false,
+                    "licensePlateRecognition": false
+                }
+            },
+            "schedule": {
+                "is24Hours": true
+            },
+            "contact": {
+                "phone": "+34 986 456 789",
+                "emergency": "+34 986 456 790"
+            },
+            "rating": {
+                "average": 4.0,
+                "totalReviews": 234,
+                "distribution": {
+                    "5": 95,
+                    "4": 78,
+                    "3": 45,
+                    "2": 12,
+                    "1": 4
+                },
+                "lastUpdated": "2024-01-18T11:15:00Z"
+            },
+            "createdAt": "2023-06-15T08:00:00Z",
+            "updatedAt": "2024-01-18T11:15:00Z"
+        },
+        {
+            "id": "vigo-005",
+            "name": "Zona Azul - Calle Urzáiz",
+            "description": "Plazas de aparcamiento regulado en la principal arteria comercial de Vigo.",
+            "address": "Calle Urzáiz, 36201 Vigo, Pontevedra",
+            "location": {
+                "latitude": 42.2387,
+                "longitude": -8.7234,
+                "city": "Vigo",
+                "country": "España",
+                "postalCode": "36201",
+                "district": "Centro"
+            },
+            "type": "street",
+            "status": "active",
+            "capacity": {
+                "total": 45,
+                "available": 8,
+                "reserved": 0,
+                "occupied": 37,
+                "spots": {
+                    "regular": 42,
+                    "disabled": 3,
+                    "electric": 0,
+                    "motorcycle": 0,
+                    "large": 0
+                }
+            },
+            "pricing": {
+                "currency": "EUR",
+                "freeMinutes": 0,
+                "rates": [
+                    {
+                        "id": "zone-blue",
+                        "name": "Zona Azul",
+                        "type": "hourly",
+                        "price": 1.20,
+                        "maxDuration": 120,
+                        "validDays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday"
+                        ],
+                        "validHours": {
+                            "start": "09:00",
+                            "end": "14:00"
+                        }
+                    },
+                    {
+                        "id": "zone-blue-afternoon",
+                        "name": "Zona Azul Tarde",
+                        "type": "hourly",
+                        "price": 1.20,
+                        "maxDuration": 120,
+                        "validDays": [
+                            "monday",
+                            "tuesday",
+                            "wednesday",
+                            "thursday",
+                            "friday"
+                        ],
+                        "validHours": {
+                            "start": "16:00",
+                            "end": "20:00"
+                        }
+                    }
+                ],
+                "specialRates": [
+                    {
+                        "id": "resident-zone",
+                        "name": "Residente zona",
+                        "description": "Para residentes de la zona",
+                        "type": "resident",
+                        "discount": 100,
+                        "requirements": [
+                            "Tarjeta de residente"
+                        ]
+                    }
+                ]
+            },
+            "features": {
+                "security": {
+                    "surveillance": false,
+                    "lighting": true,
+                    "guards": false,
+                    "gatedAccess": false,
+                    "emergencyButton": false
+                },
+                "accessibility": {
+                    "wheelchairAccess": true,
+                    "elevators": false,
+                    "disabledSpots": 3,
+                    "audioInstructions": false,
+                    "brailleSignage": false
+                },
+                "services": {
+                    "carWash": false,
+                    "valet": false,
+                    "electricCharging": false,
+                    "airPump": false,
+                    "restrooms": false,
+                    "wifi": false,
+                    "shopping": true
+                },
+                "payment": {
+                    "cash": false,
+                    "card": true,
+                    "mobile": true,
+                    "contactless": true,
+                    "subscription": false,
+                    "prepaid": true
+                },
+                "technology": {
+                    "app": true,
+                    "reservation": false,
+                    "realTimeAvailability": true,
+                    "digitalPayment": true,
+                    "smartParking": true,
+                    "licensePlateRecognition": false
+                }
+            },
+            "schedule": {
+                "is24Hours": false,
+                "schedule": [
+                    {
+                        "dayOfWeek": "monday",
+                        "openTime": "09:00",
+                        "closeTime": "20:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "tuesday",
+                        "openTime": "09:00",
+                        "closeTime": "20:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "wednesday",
+                        "openTime": "09:00",
+                        "closeTime": "20:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "thursday",
+                        "openTime": "09:00",
+                        "closeTime": "20:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "friday",
+                        "openTime": "09:00",
+                        "closeTime": "20:00",
+                        "isClosed": false
+                    },
+                    {
+                        "dayOfWeek": "saturday",
+                        "openTime": "00:00",
+                        "closeTime": "23:59",
+                        "isClosed": true
+                    },
+                    {
+                        "dayOfWeek": "sunday",
+                        "openTime": "00:00",
+                        "closeTime": "23:59",
+                        "isClosed": true
+                    }
+                ]
+            },
+            "contact": {
+                "phone": "+34 986 810 100"
+            },
+            "rating": {
+                "average": 3.2,
+                "totalReviews": 145,
+                "distribution": {
+                    "5": 28,
+                    "4": 35,
+                    "3": 45,
+                    "2": 25,
+                    "1": 12
+                },
+                "lastUpdated": "2024-01-12T09:30:00Z"
+            },
+            "createdAt": "2023-01-01T00:00:00Z",
+            "updatedAt": "2024-01-12T09:30:00Z"
+        }
+    ]
+}

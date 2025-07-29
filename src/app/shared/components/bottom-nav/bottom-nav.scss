@@ -1,0 +1,27 @@
+  :host {
+      display: block;
+    }
+
+    /* Custom backdrop blur fallback */
+    @supports not (backdrop-filter: blur()) {
+      nav {
+        background: rgba(255, 255, 255, 0.98);
+      }
+    }
+
+    /* Enhanced focus styles */
+    button:focus-visible {
+      outline: 2px solid #3B82F6;
+      outline-offset: 2px;
+    }
+
+    /* Smooth badge animation */
+    @keyframes badgePop {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .badge-enter {
+      animation: badgePop 0.3s ease-out;
+    }

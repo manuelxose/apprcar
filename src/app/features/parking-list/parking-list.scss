@@ -1,0 +1,51 @@
+// ===== PARKING LIST COMPONENT SCSS =====
+
+// src/app/features/parking-list/parking-list.component.scss
+.parking-list-container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .parking-list-container {
+    padding-bottom: 2rem;
+  }
+}
+
+// Custom scrollbar for dropdown
+.relative {
+  .absolute {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f9fafb;
+    
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f9fafb;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 2px;
+    }
+  }
+}
+
+// Animation keyframes
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-animation="slideDown"] {
+  animation: slideDown 0.2s ease-out;
+}

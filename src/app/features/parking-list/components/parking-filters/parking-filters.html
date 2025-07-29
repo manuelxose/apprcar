@@ -1,0 +1,238 @@
+<div class="filters-container">
+  <!-- Header -->
+  <div class="filters-header">
+    <div class="header-content">
+      <h2>Filtros de búsqueda</h2>
+      <button mat-icon-button (click)="closeSheet()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="filters-summary">
+      <span>{{ getFiltersSummary() }}</span>
+    </div>
+  </div>
+
+  <div class="filters-content">
+    <!-- Tipo de parking -->
+    <div class="filter-section">
+      <h3>
+        <mat-icon>local_parking</mat-icon>
+        Tipo de parking
+      </h3>
+      
+      <div class="parking-types-grid">
+        <button
+          *ngFor="let type of parkingTypes"
+          mat-stroked-button
+          class="type-chip"
+          [class.selected]="isParkingTypeSelected(type.value)"
+          (click)="toggleParkingType(type.value)">
+          <span class="type-icon">{{ type.icon }}</span>
+          <span class="type-label">{{ type.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Precio -->
+    <div class="filter-section">
+      <h3>
+        <mat-icon>euro</mat-icon>
+        Precio máximo
+      </h3>
+      
+      <div class="price-controls">
+        <mat-form-field appearance="outline" class="price-type-select">
+          <mat-select 
+            [value]="filters().priceType || 'hourly'"
+            (selectionChange)="onPriceTypeChange($event.value)"
+            placeholder="Tipo de tarifa">
+            <mat-option 
+              *ngFor="let type of priceTypes" 
+              [value]="type.value">
+              {{ type.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="slider-container">
+          <mat-slider 
+            [min]="maxPriceRange().min" 
+            [max]="maxPriceRange().max" 
+            [step]="0.5"
+            class="price-slider">
+            <input matSliderThumb 
+                   [value]="filters().maxPrice || maxPriceRange().max"
+                   (valueChange)="onMaxPriceChange($event)">
+          </mat-slider>
+          <div class="slider-labels">
+            <span>{{ formatPrice(maxPriceRange().min) }}</span>
+            <span class="current-value">{{ formatPrice(filters().maxPrice || maxPriceRange().max) }}</span>
+            <span>{{ formatPrice(maxPriceRange().max) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Distancia máxima -->
+    <div class="filter-section">
+      <h3>
+        <mat-icon>near_me</mat-icon>
+        Distancia máxima
+      </h3>
+      
+      <div class="slider-container">
+        <mat-slider 
+          [min]="maxDistanceRange().min" 
+          [max]="maxDistanceRange().max" 
+          [step]="100"
+          class="distance-slider">
+          <input matSliderThumb 
+                 [value]="filters().distance || maxDistanceRange().max"
+                 (valueChange)="onMaxDistanceChange($event)">
+        </mat-slider>
+        <div class="slider-labels">
+          <span>{{ formatDistance(maxDistanceRange().min) }}</span>
+          <span class="current-value">{{ formatDistance(filters().distance || maxDistanceRange().max) }}</span>
+          <span>{{ formatDistance(maxDistanceRange().max) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Valoración mínima -->
+    <div class="filter-section">
+      <h3>
+        <mat-icon>star</mat-icon>
+        Valoración mínima
+      </h3>
+      
+      <div class="rating-options">
+        <button
+          *ngFor="let rating of [0, 1, 2, 3, 4, 5]"
+          mat-stroked-button
+          class="rating-button"
+          [class.selected]="filters().rating === rating"
+          (click)="onMinRatingChange(rating)">
+          <span *ngIf="rating === 0">Cualquiera</span>
+          <span *ngIf="rating > 0" class="rating-display">
+            {{ rating }} <mat-icon class="star-icon">star</mat-icon>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Características -->
+    <div class="filter-section">
+      <h3>
+        <mat-icon>tune</mat-icon>
+        Características
+      </h3>
+      
+      <div class="features-grid">
+        <mat-checkbox
+          [checked]="isFeatureSelected('electricCharging')"
+          (change)="toggleFeature('electricCharging')"
+          class="feature-checkbox">
+          <div class="feature-content">
+            <mat-icon>electric_bolt</mat-icon>
+            <span>Carga eléctrica</span>
+          </div>
+        </mat-checkbox>
+
+        <mat-checkbox
+          [checked]="isFeatureSelected('wheelchairAccess')"
+          (change)="toggleFeature('wheelchairAccess')"
+          class="feature-checkbox">
+          <div class="feature-content">
+            <mat-icon>accessible</mat-icon>
+            <span>Accesible</span>
+          </div>
+        </mat-checkbox>
+
+        <mat-checkbox
+          [checked]="isFeatureSelected('security')"
+          (change)="toggleFeature('security')"
+          class="feature-checkbox">
+          <div class="feature-content">
+            <mat-icon>security</mat-icon>
+            <span>Vigilancia</span>
+          </div>
+        </mat-checkbox>
+
+        <mat-checkbox
+          [checked]="isFeatureSelected('covered')"
+          (change)="toggleFeature('covered')"
+          class="feature-checkbox">
+          <div class="feature-content">
+            <mat-icon>roofing</mat-icon>
+            <span>Cubierto</span>
+          </div>
+        </mat-checkbox>
+
+        <mat-checkbox
+          [checked]="isFeatureSelected('valet')"
+          (change)="toggleFeature('valet')"
+          class="feature-checkbox">
+          <div class="feature-content">
+            <mat-icon>person</mat-icon>
+            <span>Servicio valet</span>
+          </div>
+        </mat-checkbox>
+
+        <mat-checkbox
+          [checked]="isFeatureSelected('carWash')"
+          (change)="toggleFeature('carWash')"
+          class="feature-checkbox">
+          <div class="feature-content">
+            <mat-icon>local_car_wash</mat-icon>
+            <span>Lavado</span>
+          </div>
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Disponibilidad -->
+    <div class="filter-section">
+      <h3>
+        <mat-icon>check_circle</mat-icon>
+        Disponibilidad
+      </h3>
+      
+      <mat-checkbox
+        [checked]="filters().availability || false"
+        (change)="toggleAvailabilityFilter()"
+        class="availability-checkbox">
+        Solo mostrar parkings con plazas disponibles
+      </mat-checkbox>
+    </div>
+  </div>
+
+  <!-- Footer con acciones -->
+  <div class="filters-footer">
+    <button 
+      mat-button
+      class="reset-btn"
+      (click)="resetFilters()"
+      [disabled]="getActiveFiltersCount() === 0">
+      Limpiar todo
+    </button>
+    
+    <button 
+      mat-raised-button 
+      color="primary"
+      class="apply-btn"
+      (click)="applyFilters()">
+      Aplicar filtros
+      <span *ngIf="getActiveFiltersCount() > 0">({{ getActiveFiltersCount() }})</span>
+    </button>
+  </div>
+</div>

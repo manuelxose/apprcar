@@ -1,0 +1,352 @@
+// search-bar.component.scss
+@use 'tailwindcss/base';
+@use 'tailwindcss/components';
+@use 'tailwindcss/utilities';
+
+// Component root
+:host {
+  @apply block w-full;
+}
+
+// Search bar container
+.search-bar-container {
+  @apply relative w-full;
+}
+
+// Search input enhancements
+.search-input-container {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  &:focus-within {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+// Input field improvements
+input[type="text"] {
+  &::placeholder {
+    @apply text-gray-400;
+  }
+  
+  &:focus {
+    &::placeholder {
+      @apply text-gray-300;
+    }
+  }
+}
+
+// Action buttons styling
+.action-buttons {
+  button {
+    @apply relative;
+    -webkit-tap-highlight-color: transparent;
+    
+    &:active {
+      @apply scale-95;
+    }
+    
+    // Badge positioning
+    span {
+      @apply absolute -top-1 -right-1;
+    }
+  }
+}
+
+// Filter chips enhancements
+.active-filters-chips {
+  .filter-chip {
+    @apply shadow-sm;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    
+    &:hover {
+      @apply shadow-md;
+    }
+    
+    button {
+      &:hover {
+        @apply scale-110;
+      }
+    }
+  }
+  
+  .clear-all-btn {
+    @apply shadow-sm;
+    
+    &:hover {
+      @apply shadow-md;
+    }
+  }
+}
+
+// Filters panel animations and styling
+.filters-panel {
+  // Desktop dropdown styling
+  @media (min-width: 768px) {
+    max-height: 80vh;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  // Mobile full-screen styling
+  @media (max-width: 767px) {
+    animation: slideInBottom 0.3s ease-out;
+  }
+}
+
+// Filter sections styling
+.filter-section {
+  h4 {
+    @apply flex items-center;
+    
+    &::after {
+      content: '';
+      @apply flex-1 h-px bg-gray-200 ml-3;
+    }
+  }
+}
+
+// Parking type buttons
+.parking-type-btn {
+  @apply min-h-[60px] text-center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    @apply transform scale-105;
+  }
+  
+  &:active {
+    @apply transform scale-95;
+  }
+  
+  svg {
+    @apply flex-shrink-0;
+  }
+}
+
+// Price slider custom styling
+.price-slider {
+  background: linear-gradient(
+    to right, 
+    #3B82F6 0%, 
+    #3B82F6 var(--slider-progress, 50%), 
+    #E5E7EB var(--slider-progress, 50%), 
+    #E5E7EB 100%
+  );
+  
+  &::-webkit-slider-thumb {
+    @apply appearance-none w-5 h-5 bg-blue-500 rounded-full cursor-pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+      @apply bg-blue-600 scale-110;
+    }
+  }
+  
+  &::-moz-range-thumb {
+    @apply w-5 h-5 bg-blue-500 rounded-full cursor-pointer border-0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    &:hover {
+      @apply bg-blue-600 scale-110;
+    }
+  }
+}
+
+// Rating buttons styling
+.rating-btn {
+  @apply min-w-[80px] justify-center;
+  
+  &:hover {
+    @apply transform scale-105;
+  }
+  
+  svg {
+    @apply transition-colors duration-150;
+  }
+}
+
+// Feature checkboxes styling
+.feature-checkbox {
+  @apply transition-all duration-200;
+  
+  &:hover {
+    @apply bg-gray-50 border-gray-300 shadow-sm;
+  }
+  
+  input[type="checkbox"] {
+    &:checked {
+      @apply bg-blue-600 border-blue-600;
+    }
+    
+    &:focus {
+      @apply ring-2 ring-blue-500 ring-offset-2;
+    }
+  }
+}
+
+// Availability buttons styling
+.availability-btn {
+  @apply min-h-[50px];
+  
+  &:hover {
+    @apply transform scale-105;
+  }
+  
+  &:active {
+    @apply transform scale-95;
+  }
+}
+
+// Sort options styling
+.sort-option {
+  @apply transition-all duration-200;
+  
+  &:hover {
+    @apply bg-gray-50 border-gray-300 shadow-sm;
+  }
+  
+  input[type="radio"] {
+    &:checked {
+      @apply bg-blue-600 border-blue-600;
+    }
+    
+    &:focus {
+      @apply ring-2 ring-blue-500 ring-offset-2;
+    }
+  }
+}
+
+// Mobile-specific enhancements
+@media (max-width: 767px) {
+  .filters-content {
+    @apply pb-20; // Extra padding for mobile footer
+  }
+  
+  .filters-footer {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+// Animations
+@keyframes slideInBottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-bottom {
+  animation: slideInBottom 0.3s ease-out;
+}
+
+.animate-slide-in-top {
+  animation: slideInTop 0.2s ease-out;
+}
+
+// Custom focus states for accessibility
+button:focus-visible,
+input:focus-visible {
+  @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+// Loading states
+.search-input-container {
+  &.loading {
+    @apply opacity-75 pointer-events-none;
+    
+    &::after {
+      content: '';
+      @apply absolute top-1/2 right-4 w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin;
+    }
+  }
+}
+
+// Error states
+.search-input-container {
+  &.error {
+    @apply border-red-300;
+  }
+}
+
+// Dark mode support (optional)
+@media (prefers-color-scheme: dark) {
+  .filters-panel {
+    @apply bg-gray-800 border-gray-700;
+  }
+  
+  .search-input-container {
+    @apply bg-gray-800 border-gray-600;
+    
+    input {
+      @apply text-white placeholder-gray-400;
+    }
+  }
+  
+  .filter-chip {
+    @apply bg-blue-900 text-blue-200 border-blue-700;
+  }
+  
+  .filter-section h4 {
+    @apply text-gray-200;
+    
+    &::after {
+      @apply bg-gray-600;
+    }
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .search-input-container {
+    @apply border-2 border-black;
+  }
+  
+  button {
+    @apply border border-black;
+  }
+  
+  .filter-chip {
+    @apply border-2 border-blue-800;
+  }
+}
+
+// Print styles
+@media print {
+  .filters-panel,
+  .action-buttons {
+    @apply hidden;
+  }
+  
+  .search-input-container {
+    @apply border border-gray-400;
+  }
+}

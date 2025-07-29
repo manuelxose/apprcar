@@ -1,0 +1,138 @@
+ <!-- App Container with modern layout -->
+    <div class="app-container min-h-screen bg-gray-50 relative overflow-hidden"
+         [class.is-mobile]="isMobile()"
+         [class.overlay-active]="showOverlay()">
+      
+      <!-- Header Component -->
+      <app-header 
+        [showBackButton]="showBackButton()"
+        [title]="currentPageTitle()"
+        [isLoading]="isNavigating()"
+        (menuClick)="onMenuClick()"
+        (backClick)="onBackClick()">
+      </app-header>
+
+      <!-- Global Loading Overlay -->
+      <div *ngIf="isLoading()" 
+           class="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm flex items-center justify-center">
+        <div class="loading-container flex flex-col items-center space-y-4">
+          <!-- Modern loading spinner -->
+          <div class="relative w-12 h-12">
+            <div class="absolute inset-0 rounded-full border-4 border-gray-200"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+          </div>
+          <p class="text-sm font-medium text-gray-600">Cargando...</p>
+        </div>
+      </div>
+
+      <!-- Navigation Progress Bar -->
+      <div *ngIf="isNavigating() && !isLoading()" 
+           class="fixed top-16 left-0 right-0 z-40 h-1 bg-gray-100">
+        <div class="h-full bg-gradient-to-r from-blue-600 to-blue-700 animate-pulse origin-left transform scale-x-100 transition-transform duration-300"></div>
+      </div>
+
+      <!-- Main Content Area -->
+      <main class="main-content transition-all duration-300 ease-in-out"
+            [class]="getMainContentClasses()">
+        
+        <!-- Page Transition Wrapper -->
+        <div class="page-wrapper h-full w-full relative" 
+             [class.page-transitioning]="isNavigating()">
+          <router-outlet></router-outlet>
+        </div>
+
+        <!-- Scroll to top button -->
+        <button *ngIf="showScrollTop()" 
+                (click)="scrollToTop()"
+                class="fixed bottom-24 md:bottom-8 right-4 z-30 
+                       w-12 h-12 bg-white/90 backdrop-blur-sm 
+                       rounded-full shadow-lg shadow-black/10 
+                       flex items-center justify-center
+                       text-gray-600 hover:text-blue-600 hover:bg-white
+                       transition-all duration-200 ease-in-out
+                       transform hover:scale-105 active:scale-95">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+          </svg>
+        </button>
+      </main>
+
+      <!-- Bottom Navigation (Mobile Only) -->
+      <app-bottom-nav 
+        *ngIf="showBottomNav()"
+        [currentRoute]="currentRoute()"
+        [hasNotifications]="hasUnreadNotifications()"
+        (navigationClick)="onBottomNavClick($event)"
+        class="transform transition-all duration-300 ease-in-out"
+        [class.translate-y-full]="hideBottomNavTemporarily()">
+      </app-bottom-nav>
+
+      <!-- Global Overlay for modals/sheets -->
+      <div *ngIf="showOverlay()" 
+           class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm 
+                  animate-fade-in cursor-pointer" 
+           (click)="closeOverlay()"
+           [@fadeIn]>
+      </div>
+
+      <!-- Toast Notifications Container -->
+      <div class="toast-container fixed top-20 right-4 z-50 space-y-2 max-w-sm">
+        <div *ngFor="let toast of activeToasts(); trackBy: trackToast" 
+             class="toast-item bg-white rounded-xl shadow-lg shadow-black/10 
+                    border border-gray-100 p-4 min-w-0 max-w-full
+                    transform transition-all duration-300 ease-out
+                    animate-slide-in-right"
+             [class.success]="toast.type === 'success'"
+             [class.error]="toast.type === 'error'"
+             [class.warning]="toast.type === 'warning'">
+          <div class="flex items-start space-x-3">
+            <!-- Toast Icon -->
+            <div class="flex-shrink-0 w-5 h-5 mt-0.5" 
+                 [ngClass]="{
+                   'text-green-500': toast.type === 'success',
+                   'text-red-500': toast.type === 'error',
+                   'text-amber-500': toast.type === 'warning',
+                   'text-blue-500': toast.type === 'info'
+                 }">
+              <svg *ngIf="toast.type === 'success'" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+              </svg>
+              <svg *ngIf="toast.type === 'error'" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+              </svg>
+              <svg *ngIf="toast.type === 'warning'" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/>
+              </svg>
+              <svg *ngIf="toast.type === 'info'" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/>
+              </svg>
+            </div>
+            
+            <!-- Toast Content -->
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900" [innerHTML]="toast.title"></p>
+              <p *ngIf="toast.message" class="text-xs text-gray-600 mt-1" [innerHTML]="toast.message"></p>
+            </div>
+            
+            <!-- Close Button -->
+            <button (click)="dismissToast(toast.id)" 
+                    class="flex-shrink-0 text-gray-400 hover:text-gray-600 
+                           p-1 -m-1 rounded-lg transition-colors duration-150">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connection Status Indicator -->
+      <div *ngIf="!isOnline()" 
+           class="fixed bottom-24 md:bottom-8 left-4 z-30
+                  bg-amber-100 text-amber-800 text-xs font-medium
+                  px-3 py-2 rounded-full shadow-lg
+                  flex items-center space-x-2">
+        <div class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+        <span>Sin conexión</span>
+      </div>
+    </div>

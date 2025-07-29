@@ -1,0 +1,98 @@
+@use 'tailwindcss/base';
+@use 'tailwindcss/components';
+@use 'tailwindcss/utilities';
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-apparcar-blue-600 hover:bg-apparcar-blue-700 text-white font-medium py-2.5 px-4 rounded-xl transition-all duration-200 ease-in-out shadow-lg shadow-apparcar-blue-600/25;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-4 rounded-xl transition-all duration-200 ease-in-out;
+  }
+  
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+  }
+  
+  .navbar-item {
+    @apply px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ease-in-out;
+  }
+  
+  .navbar-item-active {
+    @apply bg-apparcar-blue-600 text-white shadow-lg shadow-apparcar-blue-600/25;
+  }
+  
+  .navbar-item-inactive {
+    @apply text-gray-600 hover:text-apparcar-blue-600 hover:bg-apparcar-blue-50;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Animaciones personalizadas */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+.animate-slide-in-bottom {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+/* Focus states mejorados */
+.focus-visible:focus-visible {
+  @apply outline-none ring-2 ring-apparcar-blue-500 ring-offset-2;
+}
+
+/* Estados de hover para móvil */
+@media (hover: hover) {
+  .hover-supported:hover {
+    /* Estilos hover solo para dispositivos que lo soportan */
+  }
+}

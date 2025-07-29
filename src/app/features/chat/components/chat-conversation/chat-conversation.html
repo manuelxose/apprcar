@@ -1,0 +1,144 @@
+  <div class="flex flex-col h-screen bg-gray-50">
+      <!-- Header -->
+      <div class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center space-x-3">
+          <button 
+            (click)="goBack()"
+            class="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          
+          @if (activeChannel()) {
+            <div class="flex items-center space-x-3">
+              @if (activeChannel()!.avatar && activeChannel()!.avatar!.startsWith('http')) {
+                <img 
+                  [src]="activeChannel()!.avatar" 
+                  [alt]="activeChannel()!.name"
+                  class="w-10 h-10 rounded-full object-cover">
+              } @else {
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-medium">
+                  {{ activeChannel()!.avatar || getInitials(activeChannel()!.name) }}
+                </div>
+              }
+              
+              <div>
+                <h1 class="text-lg font-semibold text-gray-900">{{ activeChannel()!.name }}</h1>
+                @if (activeChannel()!.isOnline) {
+                  <p class="text-sm text-green-500">En línea</p>
+                } @else {
+                  <p class="text-sm text-gray-500">
+                    @if (activeChannel()!.lastSeen) {
+                      Visto {{ formatLastSeen(activeChannel()!.lastSeen!) }}
+                    } @else {
+                      Desconectado
+                    }
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <button class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4M8 6v10M16 6v10"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Messages -->
+      <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4" #messagesContainer>
+        @if (messages().length === 0) {
+          <div class="flex items-center justify-center h-full">
+            <div class="text-center">
+              <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+              </div>
+              <p class="text-gray-500">Inicia la conversación</p>
+            </div>
+          </div>
+        } @else {
+          @for (message of messages(); track message.id) {
+            <div class="flex" [class.justify-end]="message.senderId === 'currentUser'">
+              <div class="flex max-w-xs lg:max-w-md" [class.flex-row-reverse]="message.senderId === 'currentUser'">
+                @if (message.senderId !== 'currentUser') {
+                  <div class="flex-shrink-0 mr-3">
+                    @if (message.senderAvatar) {
+                      <img 
+                        [src]="message.senderAvatar" 
+                        [alt]="message.senderName"
+                        class="w-8 h-8 rounded-full object-cover">
+                    } @else {
+                      <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white text-xs font-medium">
+                        {{ getInitials(message.senderName) }}
+                      </div>
+                    }
+                  </div>
+                }
+                
+                <div class="flex flex-col">
+                  @if (message.senderId !== 'currentUser') {
+                    <span class="text-xs text-gray-500 mb-1 px-3">{{ message.senderName }}</span>
+                  }
+                  
+                  <div 
+                    class="px-4 py-2 rounded-2xl shadow-sm"
+                    [class]="message.senderId === 'currentUser' 
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white ml-3' 
+                      : 'bg-white text-gray-900 mr-3'">
+                    <p class="text-sm leading-relaxed">{{ message.content }}</p>
+                  </div>
+                  
+                  <div 
+                    class="text-xs text-gray-500 mt-1 px-3"
+                    [class.text-right]="message.senderId === 'currentUser'">
+                    {{ formatMessageTime(message.timestamp) }}
+                    @if (message.senderId === 'currentUser' && message.isRead) {
+                      <span class="ml-1 text-blue-500">✓✓</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Input -->
+      <div class="bg-white border-t border-gray-200 px-4 py-3">
+        <form (ngSubmit)="sendMessage()" class="flex items-end space-x-3">
+          <div class="flex-1 relative">
+            <textarea
+              [(ngModel)]="messageText"
+              name="messageText"
+              placeholder="Escribe un mensaje..."
+              rows="1"
+              #messageInput
+              (keydown)="onEnterPress($event)"
+              class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-sm max-h-32">
+            </textarea>
+            
+            <button
+              type="button"
+              class="absolute right-2 bottom-2 p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+              </svg>
+            </button>
+          </div>
+
+          <button
+            type="submit"
+            [disabled]="!messageText.trim()"
+            class="p-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white rounded-full shadow-lg hover:shadow-xl disabled:shadow-none transition-all duration-200 flex items-center justify-center group">
+            <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>

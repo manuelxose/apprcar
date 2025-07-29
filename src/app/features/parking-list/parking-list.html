@@ -1,0 +1,232 @@
+<!-- Main Container -->
+<div class="parking-list-container min-h-screen bg-gray-50">
+  
+  <!-- Sticky Header -->
+  <div class="sticky top-16 z-30 bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+    
+    <!-- Search Section -->
+    <div class="px-4 py-3">
+      <app-search-bar
+        placeholder="Buscar parkings por nombre o ubicación..."
+        [showFilters]="false"
+        (searchSubmit)="onSearch($event)">
+      </app-search-bar>
+    </div>
+
+    <!-- Controls Section -->
+    <div class="px-4 pb-3">
+      <div class="flex items-center justify-between mb-3">
+        
+        <!-- Results Count -->
+        <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-1">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span class="text-sm font-medium text-gray-700">
+              {{ filteredParkings().length }} parkings
+            </span>
+          </div>
+          
+          <div *ngIf="currentQuery()" class="flex items-center space-x-1">
+            <span class="text-sm text-gray-500">para</span>
+            <span class="text-sm font-medium text-blue-600">"{{ currentQuery() }}"</span>
+          </div>
+        </div>
+
+        <!-- View Controls -->
+        <div class="flex items-center space-x-2">
+          
+          <!-- Sort Dropdown -->
+          <div class="relative">
+            <button
+              (click)="toggleSortDropdown()"
+              class="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+              </svg>
+              <span>{{ getSortLabel(currentSort()) }}</span>
+              <svg class="w-4 h-4 transition-transform duration-200" [class.rotate-180]="showSortDropdown()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+
+            <!-- Sort Dropdown Menu -->
+            <div *ngIf="showSortDropdown()" 
+                 class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-40">
+              <button
+                *ngFor="let option of sortOptions"
+                (click)="onSortChange(option.value)"
+                [class]="currentSort() === option.value 
+                  ? 'bg-blue-50 text-blue-700' 
+                  : 'text-gray-700 hover:bg-gray-50'"
+                class="w-full flex items-center px-4 py-3 text-sm transition-colors duration-200">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="option.icon"/>
+                </svg>
+                {{ option.label }}
+                <svg *ngIf="currentSort() === option.value" 
+                     class="w-4 h-4 ml-auto text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- View Mode Toggle -->
+          <div class="flex bg-gray-100 rounded-lg p-1">
+            <button
+              (click)="onViewModeChange('list')"
+              [class]="viewMode() === 'list' 
+                ? 'bg-white text-gray-900 shadow-sm' 
+                : 'text-gray-500 hover:text-gray-700'"
+              class="p-2 rounded-md transition-all duration-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+              </svg>
+            </button>
+            <button
+              (click)="onViewModeChange('grid')"
+              [class]="viewMode() === 'grid' 
+                ? 'bg-white text-gray-900 shadow-sm' 
+                : 'text-gray-500 hover:text-gray-700'"
+              class="p-2 rounded-md transition-all duration-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="px-4 py-8">
+    <app-loading type="skeleton" message="Cargando parkings..."></app-loading>
+  </div>
+
+  <!-- Searching Indicator -->
+  <div *ngIf="isSearching()" class="px-4 py-4">
+    <div class="flex items-center space-x-3 bg-blue-50 rounded-xl p-4">
+      <div class="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-sm font-medium text-blue-700">Buscando parkings...</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading()" class="pb-8">
+    
+    <!-- List View -->
+    <div *ngIf="viewMode() === 'list'" class="px-4 py-4 space-y-4">
+      <app-parking-card
+        *ngFor="let parking of paginatedParkings(); trackBy: trackByParkingId"
+        [parking]="parking"
+        [distance]="calculateDistance(parking)"
+        [isFavorite]="isFavorite(parking.id)"
+        [userLocation]="userLocation()"
+        [viewMode]="'list'"
+        (click)="onParkingClick(parking)"
+        (favoriteToggle)="onFavoriteToggle($event)">
+      </app-parking-card>
+    </div>
+
+    <!-- Grid View -->
+    <div *ngIf="viewMode() === 'grid'" class="px-4 py-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <app-parking-card
+          *ngFor="let parking of paginatedParkings(); trackBy: trackByParkingId"
+          [parking]="parking"
+          [distance]="calculateDistance(parking)"
+          [isFavorite]="isFavorite(parking.id)"
+          [userLocation]="userLocation()"
+          [viewMode]="'grid'"
+          (click)="onParkingClick(parking)"
+          (favoriteToggle)="onFavoriteToggle($event)">
+        </app-parking-card>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages() > 1" class="px-4">
+      <div class="flex items-center justify-center space-x-2">
+        
+        <!-- Previous Button -->
+        <button
+          (click)="goToPage(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="p-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+
+        <!-- Page Numbers -->
+        <ng-container *ngFor="let page of getVisiblePages()">
+          <span *ngIf="page === '...'" class="px-3 py-2 text-gray-400">...</span>
+          <button
+            *ngIf="page !== '...'"
+            (click)="goToPage(+page)"
+            [class]="currentPage() === page 
+              ? 'bg-blue-600 text-white' 
+              : 'text-gray-700 hover:bg-gray-50'"
+            class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium transition-colors">
+            {{ page }}
+          </button>
+        </ng-container>
+
+        <!-- Next Button -->
+        <button
+          (click)="goToPage(currentPage() + 1)"
+          [disabled]="currentPage() === totalPages()"
+          class="p-2 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Page Info -->
+      <div class="text-center text-sm text-gray-500 mt-4">
+        Página {{ currentPage() }} de {{ totalPages() }} 
+        ({{ filteredParkings().length }} parkings en total)
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredParkings().length === 0" 
+         class="flex flex-col items-center justify-center py-16 px-4">
+      <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">
+        No se encontraron parkings
+      </h3>
+      
+      <p class="text-gray-600 text-center mb-6 max-w-md">
+        <span *ngIf="currentQuery()">
+          No hay resultados para "{{ currentQuery() }}". Intenta con otros términos.
+        </span>
+        <span *ngIf="!currentQuery()">
+          No hay parkings disponibles en este momento.
+        </span>
+      </p>
+      
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button
+          *ngIf="currentQuery()"
+          (click)="clearSearchAndFilters()"
+          class="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+          Limpiar búsqueda
+        </button>
+        
+        <button
+          (click)="viewOnMap(currentQuery())"
+          class="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
+          Ver en mapa
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

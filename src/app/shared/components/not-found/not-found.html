@@ -1,0 +1,34 @@
+<div class="not-found-container">
+      <div class="not-found-content">
+        <div class="error-icon">
+          <mat-icon>location_off</mat-icon>
+        </div>
+        
+        <h1 class="error-title">404</h1>
+        <h2 class="error-subtitle">Página no encontrada</h2>
+        
+        <p class="error-message">
+          Lo sentimos, no pudimos encontrar la página que buscas.
+          Puede que haya sido movida o eliminada.
+        </p>
+        
+        <div class="error-actions">
+          <button 
+            mat-raised-button 
+            color="primary"
+            routerLink="/"
+            class="home-button">
+            <mat-icon>home</mat-icon>
+            Ir al inicio
+          </button>
+          
+          <button 
+            mat-button
+            (click)="goBack()"
+            class="back-button">
+            <mat-icon>arrow_back</mat-icon>
+            Volver atrás
+          </button>
+        </div>
+      </div>
+    </div>
