@@ -25,3 +25,6 @@ export * from './location.interface';
 export * from './api.interface';
 export * from './map.interface';
 export * from './common.enum';
+
+// Plaza
+export * from './plaza.interface';
