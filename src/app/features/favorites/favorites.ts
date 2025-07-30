@@ -284,12 +284,12 @@ export class FavoritesComponent implements OnInit, OnDestroy {
       this.undoItem.set(parking);
       
       // Mostrar notificación de confirmación
-      await this.notificationService.showLocalNotification({
+      await this.notificationService.showBothNotifications({
         title: 'Favorito eliminado',
         body: `${parking.name} eliminado de favoritos`,
         icon: '/assets/icons/icon-192x192.png',
         data: { type: 'favorite_removed' }
-      });
+      }, 'success', `${parking.name} eliminado de favoritos`, 'Favorito eliminado');
 
       // Auto-clear undo después de 4 segundos
       setTimeout(() => {
@@ -316,12 +316,10 @@ export class FavoritesComponent implements OnInit, OnDestroy {
       this.undoItem.set(null);
       
       // Mostrar notificación de confirmación
-      this.notificationService.showLocalNotification({
-        title: 'Favorito restaurado',
-        body: `${parking.name} restaurado a favoritos`,
-        icon: '/assets/icons/icon-192x192.png',
-        data: { type: 'favorite_restored' }
-      });
+      this.notificationService.showSuccess(
+        `${parking.name} restaurado a favoritos`,
+        'Favorito restaurado'
+      );
 
     } catch (error) {
       console.error('Error restoring favorite:', error);

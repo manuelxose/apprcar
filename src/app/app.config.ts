@@ -6,6 +6,8 @@ import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideServiceWorker } from '@angular/service-worker';
 import { chatReducer, ChatEffects } from '@features/chat';
+import { plazaReducer } from './store/plaza/plaza.reducer';
+import { PlazaEffects } from '@store/plaza/plaza.effects';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
 
@@ -21,7 +23,10 @@ export const appConfig: ApplicationConfig = {
             registrationStrategy: 'registerWhenStable:30000'
           }),
     // Additional providers can be added here
-    provideStore({ chat: chatReducer }),
-    provideEffects([ChatEffects])
+    provideStore({ 
+      chat: chatReducer,
+      plaza: plazaReducer 
+    }),
+    provideEffects([ChatEffects, PlazaEffects])
   ]
 };

@@ -313,19 +313,17 @@ export class ParkingBookingComponent implements OnInit {
       };
 
       this.reservationComplete.emit(reservation);
-      this.notificationService.showLocalNotification({
-        title: '¡Reserva completada!',
-        body: 'Tu reserva ha sido procesada exitosamente',
-        data: { type: 'reservation_success', reservationId: reservation.id }
-      });
+      this.notificationService.showSuccess(
+        'Tu reserva ha sido procesada exitosamente',
+        '¡Reserva completada!'
+      );
 
     } catch (error) {
       console.error('Error creating reservation:', error);
-      this.notificationService.showLocalNotification({
-        title: 'Error en la reserva',
-        body: 'No se pudo procesar tu reserva. Inténtalo de nuevo.',
-        data: { type: 'reservation_error' }
-      });
+      this.notificationService.showError(
+        'No se pudo procesar tu reserva. Inténtalo de nuevo.',
+        'Error en la reserva'
+      );
     } finally {
       this.isLoading.set(false);
     }

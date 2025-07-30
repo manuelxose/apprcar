@@ -1,143 +1,114 @@
- :host {
-      display: block;
-      height: 100vh;
-    }
+:host {
+  display: block;
+  height: 100vh;
+  width: 100%;
+}
 
-    .map-container {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+/* Leaflet custom styles */
+::ng-deep .leaflet-container {
+  height: 100%;
+  width: 100%;
+  font-family: inherit;
+}
 
-    /* Custom slider styles */
-    .slider::-webkit-slider-thumb {
-      appearance: none;
-      height: 20px;
-      width: 20px;
-      border-radius: 50%;
-      background: #3B82F6;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
+/* Custom marker cluster styles */
+::ng-deep .marker-cluster-small {
+  background-color: rgba(59, 130, 246, 0.6);
+}
 
-    .slider::-moz-range-thumb {
-      height: 20px;
-      width: 20px;
-      border-radius: 50%;
-      background: #3B82F6;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
+::ng-deep .marker-cluster-small div {
+  background-color: rgba(59, 130, 246, 0.8);
+}
 
-    /* Leaflet custom styles */
-    ::ng-deep .leaflet-container {
-      font-family: inherit;
-    }
+::ng-deep .marker-cluster-medium {
+  background-color: rgba(245, 158, 11, 0.6);
+}
 
-    ::ng-deep .leaflet-popup-content-wrapper {
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    }
+::ng-deep .marker-cluster-medium div {
+  background-color: rgba(245, 158, 11, 0.8);
+}
 
-    ::ng-deep .leaflet-popup-tip {
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
+::ng-deep .marker-cluster-large {
+  background-color: rgba(239, 68, 68, 0.6);
+}
 
-    /* Custom marker styles */
-    ::ng-deep .parking-marker {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 12px;
-      color: white;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      border: 2px solid white;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
+::ng-deep .marker-cluster-large div {
+  background-color: rgba(239, 68, 68, 0.8);
+}
 
-    ::ng-deep .parking-marker:hover {
-      transform: scale(1.1);
-    }
+/* Custom popup styles */
+::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
 
-    ::ng-deep .parking-marker.available {
-      background: linear-gradient(135deg, #10B981, #059669);
-    }
+::ng-deep .custom-plaza-popup {
+  min-width: 280px;
+  max-width: 320px;
+}
 
-    ::ng-deep .parking-marker.limited {
-      background: linear-gradient(135deg, #F59E0B, #D97706);
-    }
+/* Zoom controls */
+::ng-deep .leaflet-control-zoom {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-    ::ng-deep .parking-marker.full {
-      background: linear-gradient(135deg, #EF4444, #DC2626);
-    }
+::ng-deep .leaflet-control-zoom a {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 18px;
+  background-color: white;
+  color: #374151;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
 
-    ::ng-deep .user-marker {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #3B82F6;
-      border: 3px solid white;
-      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-      position: relative;
-    }
+::ng-deep .leaflet-control-zoom a:hover {
+  background-color: #f9fafb;
+  color: #1f2937;
+}
 
-    ::ng-deep .user-marker::after {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: #3B82F6;
-      opacity: 0.3;
-      animation: pulse 2s infinite;
-    }
+/* Map loading states */
+.loading-overlay {
+  backdrop-filter: blur(2px);
+}
 
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-        opacity: 0.3;
-      }
-      70% {
-        transform: scale(2);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(2);
-        opacity: 0;
-      }
-    }
+/* Plaza status indicators */
+.plaza-marker {
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 
-    /* Animations */
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+.plaza-marker.available {
+  background-color: #10b981;
+}
 
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(100%);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+.plaza-marker.claimed {
+  background-color: #f59e0b;
+}
 
-    [data-animation="slideDown"] {
-      animation: slideDown 0.3s ease-out;
-    }
+.plaza-marker.occupied {
+  background-color: #ef4444;
+}
 
-    [data-animation="slideUp"] {
-      animation: slideUp 0.3s ease-out;
-    }
+/* Info panel styling */
+.plaza-info-panel {
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .plaza-info-panel {
+    min-width: 150px;
+    padding: 0.75rem;
+  }
+  
+  ::ng-deep .custom-plaza-popup {
+    min-width: 250px;
+    max-width: 280px;
+  }
+}

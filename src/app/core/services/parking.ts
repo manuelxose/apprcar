@@ -10,8 +10,11 @@ import {
   ParkingSearchParams, 
   ParkingReservation, 
   PaginatedResponse,
-  ApiResponse 
+  ApiResponse,
+  ParkingType,
+  ParkingStatus
 } from '../models';
+import { MockParkingService } from './mock-parking.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +22,7 @@ import {
 export class ParkingService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
+  private mockParkingService = inject(MockParkingService);
   private readonly API_URL = `${environment.apiUrl}/parkings`;
   
   // Estado global de parkings
@@ -33,12 +37,20 @@ export class ParkingService {
 
   constructor() {
     this.loadFavorites();
+    if (environment.mockDataEnabled) {
+      console.log('🔄 ParkingService: Usando datos simulados');
+    }
   }
 
   /**
    * Buscar parkings con parámetros avanzados
    */
   searchParkings(params: ParkingSearchParams): Observable<PaginatedResponse<Parking>> {
+    // Si el modo mock está habilitado, usar el servicio simulado
+    if (environment.mockDataEnabled) {
+      return this.mockParkingService.searchParkings(params);
+    }
+
     let httpParams = new HttpParams();
     
     if (params.query) httpParams = httpParams.set('query', params.query);
@@ -236,6 +248,28 @@ export class ParkingService {
 
   private handleError = (error: any): Observable<any> => {
     console.error('ParkingService error:', error);
+    
+    // If environment allows mock data and it's a connection error, use mock service
+    if (environment.mockDataEnabled && (error.status === 0 || error.status === 404)) {
+      console.warn('Backend not available, using mock data');
+      
+      // Extraer parámetros de la URL original si es posible
+      const url = error.url || '';
+      const urlParams = new URLSearchParams(url.split('?')[1] || '');
+      
+      const searchParams: ParkingSearchParams = {
+        location: {
+          latitude: parseFloat(urlParams.get('lat') || '40.4168'),
+          longitude: parseFloat(urlParams.get('lng') || '-3.7038')
+        },
+        radius: parseInt(urlParams.get('radius') || '2000'),
+        limit: parseInt(urlParams.get('limit') || '10'),
+        offset: 0
+      };
+
+      return this.mockParkingService.searchParkings(searchParams);
+    }
+    
     return of(null);
   };
 }

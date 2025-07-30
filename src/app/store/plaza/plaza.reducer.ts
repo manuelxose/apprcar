@@ -1,7 +1,7 @@
 // src/app/store/plaza/plaza.reducer.ts
 import { createReducer, on } from '@ngrx/store';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
-import { PlazaLibre, LocationData, PlazaFilters, PlazaStatus } from '@core/models';
+import { PlazaLibre, LocationData, PlazaFilters, PlazaStatus } from '../../core/models';
 import * as PlazaActions from './plaza.actions';
 
 export interface PlazaState extends EntityState<PlazaLibre> {

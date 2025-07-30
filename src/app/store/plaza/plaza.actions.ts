@@ -1,6 +1,6 @@
 // src/app/store/plaza/plaza.actions.ts
 import { createAction, props } from '@ngrx/store';
-import { PlazaLibre, PlazaNotification, PlazaConfirmation, LocationData, PlazaFilters, PlazaStatus } from '@core/models';
+import { PlazaLibre, PlazaNotification, PlazaConfirmation, LocationData, PlazaFilters, PlazaStatus } from '../../core/models';
 
 // Notificar nueva plaza libre
 export const notifyFreeParkingSpot = createAction(
@@ -98,6 +98,11 @@ export const reportPlazaUnavailable = createAction(
 export const reportPlazaUnavailableSuccess = createAction(
   '[Plaza] Report Plaza Unavailable Success',
   props<{ plazaId: string }>()
+);
+
+export const reportPlazaUnavailableFailure = createAction(
+  '[Plaza] Report Plaza Unavailable Failure',
+  props<{ error: string }>()
 );
 
 // Actualizar ubicación del usuario

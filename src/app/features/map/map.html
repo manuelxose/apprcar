@@ -1,94 +1,109 @@
-<div class="map-container h-screen relative bg-gray-100">
-  <!-- Map Container -->
-  <div #mapContainer class="absolute inset-0 z-0"></div>
+<div class="relative h-screen w-full overflow-hidden">
+  <!-- Mapa principal -->
+  <div 
+    #mapContainer 
+    class="h-full w-full z-10"
+    [class.blur-sm]="isLoading()"
+  ></div>
 
-  <!-- Loading Overlay -->
-  @if (isLoading()) {
-    <div class="absolute inset-0 z-50 bg-white bg-opacity-90 flex items-center justify-center">
-      <app-loading 
-        type="pulse" 
-        message="Cargando mapa..."
-        class="text-blue-500">
-      </app-loading>
-    </div>
-  }
-
-  <!-- Header with Search -->
-  <div class="absolute top-0 left-0 right-0 z-40 bg-white shadow-sm">
-    <div class="flex items-center p-4 space-x-3">
-      <!-- Search Bar -->
-      <div class="flex-1">
-        <app-search-bar
-          placeholder="Buscar parkings..."
-          (searchSubmit)="onSearch($event)"
-          [showFilters]="false">
-        </app-search-bar>
-      </div>
-
-      <!-- Filter Toggle -->
-      <button 
-        (click)="toggleFilters()"
-        [class]="showFilters() ? 'bg-blue-500 text-white' : 'bg-white text-gray-700'"
-        class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-        </svg>
-      </button>
+  <!-- Overlay de carga -->
+  <div 
+    *ngIf="isLoading()" 
+    class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-20"
+  >
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <p class="text-gray-600">{{ loadingMessage() }}</p>
     </div>
   </div>
 
-  <!-- Results Counter -->
-  @if (hasSearched() && !isLoading()) {
-    <div class="absolute top-20 left-4 z-30 bg-white rounded-lg shadow-sm px-3 py-2">
-      <span class="text-sm text-gray-600">
-        {{ visibleParkings().length }} parkings encontrados
-      </span>
-    </div>
-  }
+  <!-- Controles del mapa -->
+  <app-map-controls
+    class="absolute top-4 left-4 z-30"
+    [filters]="filters()"
+    [userLocation]="userLocation()"
+    [plazaCount]="availablePlazas().length"
+    (filtersChange)="onFiltersChange($event)"
+    (centerOnUser)="centerOnUserLocation()"
+    (refreshPlazas)="refreshPlazas()"
+  ></app-map-controls>
 
-  <!-- Map Controls -->
-  <div class="absolute bottom-4 right-4 z-30 flex flex-col space-y-2">
-    <!-- Zoom to User Location -->
-    @if (userLocation()) {
-      <button 
-        (click)="zoomToUserLocation()"
-        class="bg-white p-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-        title="Mi ubicación">
-        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-        </svg>
-      </button>
-    }
-
-    <!-- Map Style Toggle -->
-    <button 
-      (click)="toggleMapStyle()"
-      class="bg-white p-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-      [title]="mapStyle() === 'default' ? 'Vista satélite' : 'Vista normal'">
-      <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"></path>
-      </svg>
-    </button>
-  </div>
-
-  <!-- No Results Message -->
-  @if (!isLoading() && hasSearched() && visibleParkings().length === 0) {
-    <div class="absolute inset-x-4 top-32 z-30 bg-white rounded-lg shadow-sm p-6 text-center">
-      <div class="text-gray-400 mb-2">
-        <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-      </div>
-      <h3 class="text-lg font-medium text-gray-900 mb-1">No se encontraron parkings</h3>
-      <p class="text-gray-600">Intenta buscar en otra zona o ajusta los filtros</p>
-      @if (showFilters()) {
+  <!-- Información de plazas -->
+  <div class="absolute top-4 right-4 z-30">
+    <div class="bg-white rounded-2xl shadow-lg p-4 min-w-[200px]">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-semibold text-gray-900">Plazas Cercanas</h3>
         <button 
-          (click)="clearFilters()"
-          class="mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200">
-          Limpiar filtros
+          (click)="refreshPlazas()"
+          class="p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
+        >
+          <svg 
+            class="w-4 h-4 text-gray-500" 
+            [class.animate-spin]="isRefreshing()"
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
         </button>
-      }
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+            <span class="text-gray-600">Disponibles</span>
+          </div>
+          <span class="font-semibold text-gray-900">{{ plazaStats().available }}</span>
+        </div>
+        
+        <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+            <span class="text-gray-600">Reclamadas</span>
+          </div>
+          <span class="font-semibold text-gray-900">{{ plazaStats().claimed }}</span>
+        </div>
+        
+        <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center">
+            <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+            <span class="text-gray-600">Ocupadas</span>
+          </div>
+          <span class="font-semibold text-gray-900">{{ plazaStats().occupied }}</span>
+        </div>
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-gray-100">
+        <div class="text-xs text-gray-500">
+          Última actualización: {{ getLastUpdateText() }}
+        </div>
+      </div>
     </div>
-  }
+  </div>
+
+  <!-- Modal de detalle de plaza -->
+  <plaza-detail-modal
+    [isOpen]="selectedPlaza() !== null"
+    [plaza]="selectedPlaza()"
+    [userLocation]="userLocation()"
+    (close)="closeDetailModal()"
+    (claim)="onClaimPlaza($event)"
+    (navigate)="onNavigateToPlaza($event)"
+    (report)="onReportPlaza($event)"
+  ></plaza-detail-modal>
+
+  <!-- Error state -->
+  <div 
+    *ngIf="error()" 
+    class="absolute bottom-4 left-4 right-4 bg-red-50 border border-red-200 rounded-2xl p-4 z-30"
+  >
+    <div class="flex items-center">
+      <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <p class="text-sm text-red-700">{{ error() }}</p>
+    </div>
+  </div>
 </div>

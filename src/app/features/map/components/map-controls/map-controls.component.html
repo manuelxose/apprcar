@@ -1,0 +1,209 @@
+<!-- Panel de controles principal -->
+<div class="bg-white rounded-2xl shadow-xl p-4 w-80 max-w-[calc(100vw-2rem)]">
+  
+  <!-- Header con botones de acción -->
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-semibold text-gray-900">Filtros de búsqueda</h3>
+    <div class="flex space-x-2">
+      <!-- Botón centrar ubicación -->
+      <button
+        (click)="centerOnUser.emit()"
+        [disabled]="!userLocation"
+        class="p-2 bg-blue-50 hover:bg-blue-100 disabled:bg-gray-50 text-blue-600 disabled:text-gray-400 rounded-xl transition-colors duration-200"
+        title="Centrar en mi ubicación"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </button>
+
+      <!-- Botón refrescar -->
+      <button
+        (click)="refreshPlazas.emit()"
+        class="p-2 bg-green-50 hover:bg-green-100 text-green-600 rounded-xl transition-colors duration-200"
+        title="Refrescar plazas"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+      </button>
+
+      <!-- Botón colapsar/expandir -->
+      <button
+        (click)="toggleExpanded()"
+        class="p-2 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-xl transition-all duration-200"
+        [class.rotate-180]="!isExpanded()"
+      >
+        <svg class="w-5 h-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Contador de plazas -->
+  <div class="mb-4 p-3 bg-blue-50 rounded-xl">
+    <div class="flex items-center justify-between">
+      <span class="text-sm font-medium text-blue-900">Plazas encontradas</span>
+      <span class="text-lg font-bold text-blue-600">{{ plazaCount }}</span>
+    </div>
+  </div>
+
+  <!-- Filtros expandibles -->
+  <div 
+    class="transition-all duration-300 overflow-hidden"
+    [style.max-height]="isExpanded() ? '500px' : '0px'"
+  >
+    <form [formGroup]="filtersForm" class="space-y-4">
+      
+      <!-- Radio de búsqueda -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Radio de búsqueda: {{ getRadiusText() }}
+        </label>
+        <div class="relative">
+          <input
+            type="range"
+            formControlName="radius"
+            min="200"
+            max="5000"
+            step="100"
+            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            (input)="onRadiusChange()"
+          >
+          <div class="flex justify-between text-xs text-gray-500 mt-1">
+            <span>200m</span>
+            <span>5km</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edad máxima de los avisos -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Mostrar avisos de máximo: {{ getAgeText() }}
+        </label>
+        <div class="relative">
+          <input
+            type="range"
+            formControlName="maxAge"
+            min="5"
+            max="60"
+            step="5"
+            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            (input)="onAgeChange()"
+          >
+          <div class="flex justify-between text-xs text-gray-500 mt-1">
+            <span>5min</span>
+            <span>1h</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggles de filtros -->
+      <div class="space-y-3">
+        <!-- Solo disponibles -->
+        <label class="flex items-center">
+          <input
+            type="checkbox"
+            formControlName="showOnlyAvailable"
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+            (change)="onFilterChange()"
+          >
+          <span class="ml-3 text-sm text-gray-700">Solo plazas disponibles</span>
+        </label>
+
+        <!-- Incluir de pago -->
+        <label class="flex items-center">
+          <input
+            type="checkbox"
+            formControlName="includePaid"
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+            (change)="onFilterChange()"
+          >
+          <span class="ml-3 text-sm text-gray-700">Incluir zonas de pago</span>
+        </label>
+      </div>
+
+      <!-- Tamaño preferido -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Tamaño preferido
+        </label>
+        <div class="grid grid-cols-4 gap-2">
+          <button
+            type="button"
+            (click)="selectSize(null)"
+            [class]="getSizeButtonClass(null)"
+            class="p-2 text-xs border-2 rounded-lg transition-all duration-200"
+          >
+            Todos
+          </button>
+          <button
+            type="button"
+            (click)="selectSize('small')"
+            [class]="getSizeButtonClass('small')"
+            class="p-2 text-xs border-2 rounded-lg transition-all duration-200"
+          >
+            🚗 Pequeña
+          </button>
+          <button
+            type="button"
+            (click)="selectSize('medium')"
+            [class]="getSizeButtonClass('medium')"
+            class="p-2 text-xs border-2 rounded-lg transition-all duration-200"
+          >
+            🚙 Normal
+          </button>
+          <button
+            type="button"
+            (click)="selectSize('large')"
+            [class]="getSizeButtonClass('large')"
+            class="p-2 text-xs border-2 rounded-lg transition-all duration-200"
+          >
+            🚐 Grande
+          </button>
+        </div>
+      </div>
+
+      <!-- Precio máximo (si incluye de pago) -->
+      <div *ngIf="filtersForm.get('includePaid')?.value">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Precio máximo: {{ getPriceText() }}
+        </label>
+        <input
+          type="range"
+          formControlName="maxPrice"
+          min="0"
+          max="10"
+          step="0.5"
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          (input)="onPriceChange()"
+        >
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <span>Gratis</span>
+          <span>10€/h</span>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="flex gap-2 pt-2">
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="flex-1 py-2 px-3 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200"
+        >
+          Limpiar
+        </button>
+        <button
+          type="button"
+          (click)="applyFilters()"
+          class="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+        >
+          Aplicar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

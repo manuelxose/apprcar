@@ -13,7 +13,7 @@ const {
 
 export const selectAllFreePlazas = createSelector(
   selectPlazaState,
-  selectAllPlazas
+  (state) => state ? selectAllPlazas(state) : []
 );
 
 export const selectAvailablePlazas = createSelector(
@@ -27,7 +27,7 @@ export const selectNearbyPlazas = createSelector(
   selectAvailablePlazas,
   selectPlazaState,
   (plazas, state) => {
-    if (!state.userLocation) return plazas;
+    if (!state?.userLocation) return plazas;
     
     return plazas.filter(plaza => 
       (plaza.distance || 0) <= state.filters.radius
@@ -37,39 +37,46 @@ export const selectNearbyPlazas = createSelector(
 
 export const selectClaimedPlaza = createSelector(
   selectPlazaState,
-  selectPlazaEntities,
-  (state, entities) => 
-    state.claimedPlazaId ? entities[state.claimedPlazaId] : null
+  (state) => {
+    if (!state) return null;
+    const entities = selectPlazaEntities(state);
+    return state.claimedPlazaId ? entities[state.claimedPlazaId] : null;
+  }
 );
 
 export const selectPlazaFilters = createSelector(
   selectPlazaState,
-  (state) => state.filters
+  (state) => state?.filters || {
+    radius: 1000,
+    maxAge: 10,
+    showOnlyAvailable: true,
+    includePaid: false
+  }
 );
 
 export const selectUserLocation = createSelector(
   selectPlazaState,
-  (state) => state.userLocation
+  (state) => state?.userLocation || null
 );
 
 export const selectPlazaLoading = createSelector(
   selectPlazaState,
-  (state) => state.loading
+  (state) => state?.loading || false
 );
 
 export const selectPlazaNotifying = createSelector(
   selectPlazaState,
-  (state) => state.notifying
+  (state) => state?.notifying || false
 );
 
 export const selectPlazaClaiming = createSelector(
   selectPlazaState,
-  (state) => state.claiming
+  (state) => state?.claiming || false
 );
 
 export const selectPlazaError = createSelector(
   selectPlazaState,
-  (state) => state.error
+  (state) => state?.error || null
 );
 
 export const selectPlazaStats = createSelector(

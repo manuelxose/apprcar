@@ -1,23 +1,39 @@
 // src/app/core/services/plaza.service.ts
 import { Injectable, inject } from '@angular/core';
 import { Observable, of, throwError, timer, BehaviorSubject } from 'rxjs';
-import { map, delay, switchMap, tap } from 'rxjs/operators';
+import { map, delay, switchMap, tap, catchError } from 'rxjs/operators';
 import { PlazaLibre, PlazaConfirmation, LocationData, PlazaFilters } from '@core/models';
 import { GeolocationService } from './geolocation';
+import { MockPlazaService } from './mock-plaza.service';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlazaService {
   private geolocationService = inject(GeolocationService);
+  private mockPlazaService = inject(MockPlazaService);
   private plazasSubject = new BehaviorSubject<PlazaLibre[]>([]);
   
   // Mock data for development
   private mockPlazas: PlazaLibre[] = [];
+  private useMockService = environment.mockDataEnabled;
 
   constructor() {
-    this.initializeMockData();
-    this.startPlazaExpirationTimer();
+    if (this.useMockService) {
+      console.log('🔄 Usando servicio de plazas simuladas');
+      this.initializeMockService();
+    } else {
+      this.initializeMockData();
+      this.startPlazaExpirationTimer();
+    }
+  }
+
+  private initializeMockService(): void {
+    // Suscribirse a las plazas del servicio mock
+    this.mockPlazaService.plazas$.subscribe(plazas => {
+      this.plazasSubject.next(plazas);
+    });
   }
 
   /**
@@ -27,6 +43,10 @@ export class PlazaService {
     location: LocationData, 
     details?: any
   ): Observable<PlazaLibre> {
+    if (this.useMockService) {
+      return this.mockPlazaService.notifyFreePlaza(location, details);
+    }
+
     return of(null).pipe(
       delay(800), // Simular latencia
       map(() => {
@@ -76,6 +96,11 @@ export class PlazaService {
     location: LocationData, 
     filters?: PlazaFilters
   ): Observable<PlazaLibre[]> {
+    if (this.useMockService) {
+      const radius = filters?.radius || 2000;
+      return this.mockPlazaService.getPlazasNearLocation(location, radius);
+    }
+
     return of(null).pipe(
       delay(500),
       map(() => {
@@ -122,6 +147,16 @@ export class PlazaService {
    * Reclamar una plaza
    */
   claimParkingSpot(plazaId: string): Observable<{ plazaId: string; userId: string }> {
+    if (this.useMockService) {
+      return this.mockPlazaService.claimPlaza(plazaId).pipe(
+        map(success => ({
+          plazaId,
+          userId: 'mock-user-id',
+          success
+        }))
+      );
+    }
+
     return of(null).pipe(
       delay(300),
       map(() => {

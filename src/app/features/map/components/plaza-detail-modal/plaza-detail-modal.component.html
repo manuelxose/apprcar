@@ -1,0 +1,202 @@
+<!-- Backdrop -->
+<div 
+  *ngIf="isOpen && plaza"
+  class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-4"
+  (click)="onBackdropClick($event)"
+>
+  <!-- Modal -->
+  <div 
+    class="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-lg transform transition-all duration-300 max-h-[90vh] overflow-hidden"
+    [class.animate-slide-up]="isOpen"
+    (click)="$event.stopPropagation()"
+  >
+    
+    <!-- Header con imagen de fondo -->
+    <div class="relative h-32 bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white">
+      <button
+        (click)="close.emit()"
+        class="absolute top-4 right-4 p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors duration-200"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="flex items-center space-x-3">
+        <div class="text-4xl">{{ getPlazaIcon() }}</div>
+        <div>
+          <h2 class="text-xl font-bold">Plaza {{ plaza.details.size }}</h2>
+          <p class="text-blue-100">{{ getLocationText() }}</p>
+        </div>
+      </div>
+
+      <!-- Status badge -->
+      <div class="absolute top-4 left-4">
+        <span [class]="getStatusBadgeClass()" class="px-3 py-1 rounded-full text-sm font-medium">
+          {{ getStatusText() }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Contenido scrolleable -->
+    <div class="overflow-y-auto max-h-[calc(90vh-8rem)]">
+      
+      <!-- Información principal -->
+      <div class="p-6 border-b border-gray-100">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <!-- Distancia -->
+          <div class="text-center p-3 bg-gray-50 rounded-xl">
+            <div class="text-lg font-bold text-gray-900">{{ getDistanceText() }}</div>
+            <div class="text-xs text-gray-500">Distancia</div>
+          </div>
+
+          <!-- Tiempo -->
+          <div class="text-center p-3 bg-gray-50 rounded-xl">
+            <div class="text-lg font-bold text-gray-900">{{ getTimeText() }}</div>
+            <div class="text-xs text-gray-500">Publicado</div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div *ngIf="plaza.location.description || plaza.details.description" class="mb-4">
+          <h3 class="font-semibold text-gray-900 mb-2">Descripción</h3>
+          <p class="text-gray-600 text-sm">
+            {{ plaza.location.description || plaza.details.description }}
+          </p>
+        </div>
+
+        <!-- Características -->
+        <div class="mb-4">
+          <h3 class="font-semibold text-gray-900 mb-2">Características</h3>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+              {{ getSizeText() }}
+            </span>
+            <span 
+              *ngIf="plaza.details.isPaid" 
+              class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full"
+            >
+              💰 {{ getPriceText() }}
+            </span>
+            <span 
+              *ngIf="!plaza.details.isPaid" 
+              class="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full"
+            >
+              🆓 Gratuita
+            </span>
+            <span 
+              *ngIf="plaza.details.estimatedDuration" 
+              class="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
+            >
+              ⏰ ~{{ plaza.details.estimatedDuration }}min
+            </span>
+          </div>
+        </div>
+
+        <!-- Restricciones -->
+        <div *ngIf="plaza.details.restrictions" class="mb-4">
+          <h3 class="font-semibold text-gray-900 mb-2">Restricciones</h3>
+          <div class="flex items-start p-3 bg-amber-50 border border-amber-200 rounded-xl">
+            <svg class="w-5 h-5 text-amber-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <p class="text-amber-700 text-sm">{{ plaza.details.restrictions }}</p>
+          </div>
+        </div>
+
+        <!-- Información del usuario que compartió -->
+        <div class="mb-4">
+          <h3 class="font-semibold text-gray-900 mb-2">Compartido por</h3>
+          <div class="flex items-center p-3 bg-gray-50 rounded-xl">
+            <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">
+              {{ getUserInitials() }}
+            </div>
+            <div class="ml-3 flex-1">
+              <div class="font-medium text-gray-900">Usuario Apparcar</div>
+              <div class="flex items-center text-sm text-gray-500">
+                <span class="flex items-center">
+                  ⭐ {{ getUserRating() }}
+                </span>
+                <span class="mx-2">•</span>
+                <span>{{ getUserPlazasShared() }} plazas compartidas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="p-6">
+        
+        <!-- Estado actual de la plaza -->
+        <div *ngIf="plaza.status !== 'available'" class="mb-4 p-4 rounded-xl" [class]="getStatusAlertClass()">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-sm font-medium">{{ getStatusMessage() }}</p>
+          </div>
+        </div>
+
+        <!-- Botón principal de acción -->
+        <button
+          *ngIf="plaza.status === 'available'"
+          (click)="onClaimPlaza()"
+          [disabled]="isClaiming()"
+          class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-2xl transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:transform-none mb-3"
+        >
+          <span *ngIf="!isClaiming()">🚗 Ir a esta plaza</span>
+          <span *ngIf="isClaiming()" class="flex items-center justify-center">
+            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Reclamando...
+          </span>
+        </button>
+
+        <!-- Botones secundarios -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          
+          <!-- Navegar -->
+          <button
+            (click)="onNavigate()"
+            class="flex items-center justify-center py-3 px-4 bg-green-50 hover:bg-green-100 text-green-700 font-medium rounded-xl transition-colors duration-200"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 9m0 8V9m0 0l-6-2"/>
+            </svg>
+            Navegar
+          </button>
+
+          <!-- Compartir -->
+          <button
+            (click)="onShare()"
+            class="flex items-center justify-center py-3 px-4 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-xl transition-colors duration-200"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+            </svg>
+            Compartir
+          </button>
+        </div>
+
+        <!-- Reportar problema -->
+        <button
+          (click)="onReport()"
+          class="w-full py-3 px-4 border border-red-200 text-red-600 hover:bg-red-50 font-medium rounded-xl transition-colors duration-200"
+        >
+          🚫 Reportar problema
+        </button>
+
+        <!-- Información adicional -->
+        <div class="mt-4 p-3 bg-gray-50 rounded-xl">
+          <div class="text-xs text-gray-600">
+            <p class="mb-1">💡 <strong>Consejo:</strong> Al reclamar una plaza, tendrás 10 minutos para llegar.</p>
+            <p>⚡ Confirma cuando llegues para ganar puntos y ayudar a la comunidad.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

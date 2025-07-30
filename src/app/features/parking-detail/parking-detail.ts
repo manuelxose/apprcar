@@ -197,11 +197,10 @@ export class ParkingDetailComponent implements OnInit, OnDestroy {
     localStorage.setItem('parking_favorites', JSON.stringify(favorites));
     this.isFavorite.set(!isFav);
     
-    this.notificationService.showLocalNotification({
-      title: isFav ? 'Eliminado de favoritos' : 'Añadido a favoritos',
-      body: isFav ? 'El parking ha sido eliminado de tus favoritos' : 'El parking ha sido añadido a tus favoritos',
-      data: { type: 'favorite_toggle' }
-    });
+    this.notificationService.showSuccess(
+      isFav ? 'El parking ha sido eliminado de tus favoritos' : 'El parking ha sido añadido a tus favoritos',
+      isFav ? 'Eliminado de favoritos' : 'Añadido a favoritos'
+    );
   }
 
   onOpenInMaps(): void {
@@ -233,11 +232,10 @@ export class ParkingDetailComponent implements OnInit, OnDestroy {
     } else {
       // Fallback: copiar al clipboard
       navigator.clipboard.writeText(window.location.href).then(() => {
-        this.notificationService.showLocalNotification({
-          title: 'Enlace copiado',
-          body: 'El enlace ha sido copiado al clipboard',
-          data: { type: 'link_copied' }
-        });
+        this.notificationService.showSuccess(
+          'El enlace ha sido copiado al clipboard',
+          'Enlace copiado'
+        );
       });
     }
   }
@@ -260,11 +258,10 @@ export class ParkingDetailComponent implements OnInit, OnDestroy {
   }
 
   onBookingComplete(reservation: ParkingReservation): void {
-    this.notificationService.showLocalNotification({
-      title: '¡Reserva completada!',
-      body: 'Tu reserva ha sido procesada exitosamente',
-      data: { type: 'reservation_success', reservationId: reservation.id }
-    });
+    this.notificationService.showSuccess(
+      'Tu reserva ha sido procesada exitosamente',
+      '¡Reserva completada!'
+    );
     
     // Actualizar disponibilidad del parking (simulado)
     const parking = this.parking();

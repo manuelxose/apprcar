@@ -4,6 +4,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
+  mockDataEnabled: true, // Enable mock data when backend is not available
   
   // Default map location
   defaultCity: {

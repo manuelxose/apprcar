@@ -15,6 +15,9 @@
       "@shared/*": [
         "app/shared/*"
       ],
+      "@store/*": [
+        "app/store/*"
+      ],
       "@assets/*": [
         "assets/*"
       ],
