@@ -90,5 +90,38 @@ export const chatReducer = createReducer(
         isRead: true
       }))
     }
+  })),
+
+  // Socket connection states
+  on(ChatActions.socketConnected, (state) => ({
+    ...state,
+    isConnected: true,
+    error: null
+  })),
+
+  on(ChatActions.socketDisconnected, (state) => ({
+    ...state,
+    isConnected: false
+  })),
+
+  on(ChatActions.socketError, (state, { error }) => ({
+    ...state,
+    error,
+    isConnected: false
+  })),
+
+  // Plaza chat creation
+  on(ChatActions.createPlazaChat, (state) => ({
+    ...state,
+    loading: true,
+    error: null
+  })),
+
+  on(ChatActions.createPlazaChatSuccess, (state, { channel }) => ({
+    ...state,
+    channels: [channel, ...state.channels],
+    activeChannelId: channel.id,
+    loading: false,
+    error: null
   }))
 );

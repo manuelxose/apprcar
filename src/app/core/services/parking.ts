@@ -15,6 +15,7 @@ import {
   ParkingStatus
 } from '../models';
 import { MockParkingService } from './mock-parking.service';
+import { UnifiedNotificationService } from './unified-notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +24,7 @@ export class ParkingService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
   private mockParkingService = inject(MockParkingService);
+  private notificationService = inject(UnifiedNotificationService);
   private readonly API_URL = `${environment.apiUrl}/parkings`;
   
   // Estado global de parkings
@@ -149,6 +151,11 @@ export class ParkingService {
     return this.http.post<ApiResponse<ParkingReservation>>(`${this.API_URL}/reservations`, reservationData)
       .pipe(
         map(response => response.data || null),
+        tap(reservation => {
+          if (reservation) {
+            this.sendReservationConfirmationNotification(reservation);
+          }
+        }),
         catchError(this.handleError)
       );
   }
@@ -171,6 +178,11 @@ export class ParkingService {
     return this.http.delete<ApiResponse<void>>(`${this.API_URL}/reservations/${reservationId}`)
       .pipe(
         map(response => response.success),
+        tap(success => {
+          if (success) {
+            this.sendReservationCancelledNotification(reservationId);
+          }
+        }),
         catchError(() => of(false))
       );
   }
@@ -183,6 +195,9 @@ export class ParkingService {
     favorites.add(parkingId);
     this.favoritesSubject.next(new Set(favorites));
     this.saveFavorites();
+    
+    // Enviar notificación
+    this.sendFavoriteAddedNotification(parkingId);
   }
 
   removeFromFavorites(parkingId: string): void {
@@ -272,4 +287,43 @@ export class ParkingService {
     
     return of(null);
   };
+
+  /**
+   * Activar notificaciones de disponibilidad para un parking específico
+   */
+  enableAvailabilityNotifications(parkingId: string): void {
+    this.getParkingById(parkingId).subscribe(parking => {
+      if (parking && parking.capacity.available > 0) {
+        this.sendAvailabilityNotification(parking);
+      }
+    });
+  }
+
+  /**
+   * Métodos de notificaciones push para parkings
+   */
+  private sendFavoriteAddedNotification(parkingId: string): void {
+    this.getParkingById(parkingId).subscribe(parking => {
+      if (parking) {
+        this.notificationService.notifyFavoriteAdded(parking.name, parking.id);
+      }
+    });
+  }
+
+  private sendReservationConfirmationNotification(reservation: ParkingReservation): void {
+    // Obtener el nombre del parking para la notificación
+    this.getParkingById(reservation.parkingId).subscribe(parking => {
+      if (parking) {
+        this.notificationService.notifyReservationConfirmed(parking.name, reservation.id);
+      }
+    });
+  }
+
+  private sendReservationCancelledNotification(reservationId: string): void {
+    this.notificationService.showSuccess('Tu reserva ha sido cancelada exitosamente', 'Reserva Cancelada');
+  }
+
+  private sendAvailabilityNotification(parking: Parking): void {
+    this.notificationService.notifyParkingAvailable(parking.name, parking.address, parking.id);
+  }
 }

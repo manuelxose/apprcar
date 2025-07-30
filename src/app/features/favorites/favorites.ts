@@ -12,7 +12,7 @@ import { ParkingService } from '@core/services/parking';
 import { GeolocationService } from '@core/services/geolocation';
 import { MockDataService } from '@core/services/mock-data';
 import { StorageService } from '@core/services/storage';
-import { NotificationService } from '@core/services/notification.service';
+import { UnifiedNotificationService } from '@core/services/unified-notification.service';
 
 // Modelos
 import { Parking, SortOption, ParkingType, LocationData } from '@core/models';
@@ -42,7 +42,7 @@ export class FavoritesComponent implements OnInit, OnDestroy {
   private geolocationService = inject(GeolocationService);
   private mockDataService = inject(MockDataService);
   private storageService = inject(StorageService);
-  private notificationService = inject(NotificationService);
+  private notificationService = inject(UnifiedNotificationService);
 
   // Signals reactivos
   favoritesParkings = signal<Parking[]>([]);
@@ -284,12 +284,17 @@ export class FavoritesComponent implements OnInit, OnDestroy {
       this.undoItem.set(parking);
       
       // Mostrar notificación de confirmación
-      await this.notificationService.showBothNotifications({
+      await this.notificationService.showLocalNotification({
         title: 'Favorito eliminado',
         body: `${parking.name} eliminado de favoritos`,
         icon: '/assets/icons/icon-192x192.png',
-        data: { type: 'favorite_removed' }
-      }, 'success', `${parking.name} eliminado de favoritos`, 'Favorito eliminado');
+        data: { type: 'favorite_removed' as any }
+      });
+      
+      this.notificationService.showSuccess(
+        `${parking.name} eliminado de favoritos`, 
+        'Favorito eliminado'
+      );
 
       // Auto-clear undo después de 4 segundos
       setTimeout(() => {

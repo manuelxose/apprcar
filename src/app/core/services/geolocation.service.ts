@@ -2,13 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, from, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { UserLocation } from '@shared/interfaces';
-import { NotificationService } from './notification.service';
+import { UnifiedNotificationService } from './unified-notification.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GeolocationService {
-  private readonly notificationService = inject(NotificationService);
+  private readonly notificationService = inject(UnifiedNotificationService);
 
   /**
    * Obtiene la posición actual del usuario

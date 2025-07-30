@@ -20,30 +20,90 @@ export class MockPlazaService {
   }
 
   private initializeMockData(): void {
-    // Coordenadas base para Madrid centro
-    const baseLat = 40.4168;
-    const baseLng = -3.7038;
+    // Coordenadas base para Vigo centro
+    const baseLat = 42.2406;
+    const baseLng = -8.7207;
     
-    // Generar plazas aleatorias alrededor de Madrid
-    for (let i = 0; i < 20; i++) {
-      const plaza = this.generateRandomPlaza(baseLat, baseLng, i);
+    // Generar plazas en ubicaciones específicas de Vigo
+    this.generateVigoPlazas();
+    
+    // Generar plazas aleatorias adicionales alrededor de Vigo
+    for (let i = 0; i < 15; i++) {
+      const plaza = this.generateRandomPlaza(baseLat, baseLng, i + 100);
       this.mockPlazas.push(plaza);
     }
     
+    console.log(`🅿️ Inicializadas ${this.mockPlazas.length} plazas de prueba en Vigo`);
     this.plazasSubject.next([...this.mockPlazas]);
   }
 
+  private generateVigoPlazas(): void {
+    const vigoLocations = [
+      { lat: 42.2406, lng: -8.7207, street: 'Rúa do Príncipe', description: 'Centro histórico' },
+      { lat: 42.2395, lng: -8.7198, street: 'Plaza de Compostela', description: 'Cerca de la estación' },
+      { lat: 42.2418, lng: -8.7220, street: 'Rúa Urzáiz', description: 'Zona comercial' },
+      { lat: 42.2384, lng: -8.7179, street: 'Rúa Policarpo Sanz', description: 'Área peatonal' },
+      { lat: 42.2445, lng: -8.7234, street: 'Rúa Colón', description: 'Zona residencial' },
+      { lat: 42.2372, lng: -8.7156, street: 'Puerto de Vigo', description: 'Zona portuaria' },
+      { lat: 42.2456, lng: -8.7189, street: 'Avenida de Castelao', description: 'Área comercial' },
+      { lat: 42.2389, lng: -8.7245, street: 'Rúa García Barbón', description: 'Centro comercial' }
+    ];
+
+    vigoLocations.forEach((location, index) => {
+      const plaza = this.createSpecificPlaza(location, index);
+      this.mockPlazas.push(plaza);
+    });
+  }
+
+  private createSpecificPlaza(location: any, index: number): PlazaLibre {
+    const statuses: PlazaStatus[] = ['available', 'available', 'claimed', 'occupied']; // Más disponibles
+    const sizes = ['small', 'medium', 'large'];
+    
+    const currentTime = new Date();
+    const createdTime = new Date(currentTime.getTime() - Math.random() * 30 * 60 * 1000); // Hasta 30 min atrás
+
+    return {
+      id: `vigo-plaza-${index + 1}`,
+      createdBy: 'mock-user',
+      status: statuses[Math.floor(Math.random() * statuses.length)],
+      location: {
+        latitude: location.lat,
+        longitude: location.lng,
+        address: `${location.street} ${Math.floor(Math.random() * 50) + 1}`,
+        description: location.description
+      },
+      details: {
+        size: sizes[Math.floor(Math.random() * sizes.length)] as 'small' | 'medium' | 'large',
+        isPaid: Math.random() > 0.7,
+        price: Math.random() > 0.7 ? Math.round((Math.random() * 2 + 1) * 100) / 100 : undefined,
+        estimatedDuration: Math.random() > 0.5 ? Math.floor(Math.random() * 120) + 15 : undefined,
+        restrictions: Math.random() > 0.8 ? 'Solo residentes 9:00-14:00' : undefined,
+        description: Math.random() > 0.6 ? 'Plaza amplia y bien ubicada' : undefined
+      },
+      availability: {
+        availableFrom: createdTime.toISOString(),
+        availableUntil: new Date(createdTime.getTime() + (Math.random() * 120 + 30) * 60 * 1000).toISOString(),
+        isImmediate: true
+      },
+      createdAt: createdTime.toISOString(),
+      updatedAt: new Date(createdTime.getTime() + Math.random() * 15 * 60 * 1000).toISOString(),
+      expiresAt: new Date(createdTime.getTime() + 60 * 60 * 1000).toISOString(), // 1 hora después
+      distance: Math.round((Math.random() * 1.5 + 0.1) * 1000) / 1000 // 0.1 a 1.6 km
+    };
+  }
+
   private generateRandomPlaza(baseLat: number, baseLng: number, index: number): PlazaLibre {
-    // Generar ubicación aleatoria en un radio de ~2km
-    const latOffset = (Math.random() - 0.5) * 0.02; // ~1km aprox
-    const lngOffset = (Math.random() - 0.5) * 0.02;
+    // Generar ubicación aleatoria en un radio de ~3km
+    const latOffset = (Math.random() - 0.5) * 0.03; // ~1.5km aprox
+    const lngOffset = (Math.random() - 0.5) * 0.03;
     
     const statuses: PlazaStatus[] = ['available', 'claimed', 'occupied'];
     const sizes = ['small', 'medium', 'large'];
     const streets = [
-      'Calle Mayor', 'Gran Vía', 'Calle Alcalá', 'Paseo del Prado', 
-      'Calle Serrano', 'Calle Goya', 'Plaza España', 'Puerta del Sol',
-      'Calle Fuencarral', 'Avenida Menéndez Pelayo'
+      'Rúa do Príncipe', 'Gran Vía', 'Rúa Urzáiz', 'Rúa Policarpo Sanz', 
+      'Rúa Colón', 'Rúa Elduayen', 'Plaza de Compostela', 'Puerta del Sol',
+      'Rúa Venezuela', 'Avenida de Castelao', 'Rúa García Barbón', 'Rúa Reconquista',
+      'Plaza del Rey', 'Rúa Rosalía de Castro', 'Avenida de Madrid'
     ];
 
     const currentTime = new Date();
@@ -134,8 +194,8 @@ export class MockPlazaService {
   }
 
   private simulateNewPlaza(): void {
-    const baseLat = 40.4168;
-    const baseLng = -3.7038;
+    const baseLat = 42.2406;
+    const baseLng = -8.7207;
     
     if (Math.random() > 0.5 && this.mockPlazas.length < 30) {
       const newPlaza = this.generateRandomPlaza(baseLat, baseLng, this.plazaIdCounter);
@@ -168,16 +228,27 @@ export class MockPlazaService {
   }
 
   getPlazasNearLocation(location: LocationData, radius: number = 2000): Observable<PlazaLibre[]> {
+    console.log('🔍 MockPlazaService: Búsqueda de plazas cercanas');
+    console.log('📍 Ubicación:', location.coordinates);
+    console.log('📏 Radio:', radius, 'metros');
+    console.log('🅿️ Total plazas disponibles:', this.mockPlazas.length);
+    
     return this.getPlazas().pipe(
       map(plazas => {
-        return plazas.filter(plaza => {
+        console.log('💾 Plazas desde getPlazas():', plazas.length);
+        
+        const nearbyPlazas = plazas.filter(plaza => {
           const distance = this.calculateDistance(
             location.coordinates.latitude,
             location.coordinates.longitude,
             plaza.location.latitude,
             plaza.location.longitude
           );
-          return distance <= radius;
+          
+          const isNearby = distance <= radius;
+          console.log(`📍 Plaza ${plaza.id}: distancia=${Math.round(distance)}m, cercana=${isNearby}`, plaza.location);
+          
+          return isNearby;
         }).map(plaza => ({
           ...plaza,
           distance: this.calculateDistance(
@@ -187,6 +258,9 @@ export class MockPlazaService {
             plaza.location.longitude
           ) / 1000 // Convertir a km
         }));
+        
+        console.log('✅ Plazas cercanas encontradas:', nearbyPlazas.length);
+        return nearbyPlazas;
       })
     );
   }

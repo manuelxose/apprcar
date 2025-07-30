@@ -1,25 +1,43 @@
-// src/app/features/chat/components/chat-conversation.component.ts
-import { Component, OnInit, OnDestroy, signal, computed, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+// src/app/features/chat/components/chat-conversation/chat-conversation.component.ts
+import { 
+  Component, 
+  OnInit, 
+  OnDestroy, 
+  AfterViewChecked,
+  signal, 
+  computed, 
+  inject, 
+  ViewChild, 
+  ElementRef 
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+
 import { ChatChannel, ChatMessage } from '@core/models/chat.interface';
 import * as ChatActions from '../../store/chat.actions';
 import * as ChatSelectors from '../../store/chat.selectors';
-
+import * as AuthSelectors from '@store/auth/auth.selectors';
 
 @Component({
   selector: 'app-chat-conversation',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './chat-conversation.html',
-  styleUrls: ['./chat-conversation.scss']
+  imports: [
+    CommonModule, 
+    FormsModule,
+    RouterModule
+  ],
+  templateUrl: './chat-conversation.component.html',
+  styleUrls: ['./chat-conversation.component.scss']
 })
 export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
   @ViewChild('messageInput') messageInput!: ElementRef;
+  @ViewChild('scrollAnchor') scrollAnchor!: ElementRef;
 
+  private destroy$ = new Subject<void>();
   private store = inject(Store);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -27,68 +45,217 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   // Signals
   activeChannel = signal<ChatChannel | null>(null);
   messages = signal<ChatMessage[]>([]);
-  messageText = '';
-  
-  private shouldScrollToBottom = false;
+  isLoading = signal(false);
+  newMessage = signal('');
+  showContextMenu = signal(false);
+  contextMenuStyle = signal('');
+  isTyping = signal(false);
+  someoneIsTyping = signal(false);
 
-  ngOnInit(): void {
-    const channelId = this.route.snapshot.paramMap.get('id');
-    
-    if (channelId) {
-      this.store.dispatch(ChatActions.setActiveChannel({ channelId }));
-      this.store.dispatch(ChatActions.joinChannel({ channelId }));
-      this.store.dispatch(ChatActions.markMessagesAsRead({ channelId }));
-    }
+  // Props computadas
+  canSendMessage = computed(() => {
+    return this.newMessage().trim().length > 0 && this.activeChannel();
+  });
 
-    // Subscribe to store
-    this.store.select(ChatSelectors.selectActiveChannel).subscribe(
-      channel => this.activeChannel.set(channel)
-    );
+  private shouldScrollToBottom = true;
+  private lastMessageCount = 0;
 
-    this.store.select(ChatSelectors.selectMessagesForActiveChannel).subscribe(
-      messages => {
-        this.messages.set(messages);
-        this.shouldScrollToBottom = true;
-      }
-    );
+  ngOnInit() {
+    this.initializeSubscriptions();
+    this.loadChannelFromRoute();
   }
 
-  ngAfterViewChecked(): void {
-    if (this.shouldScrollToBottom) {
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  ngAfterViewChecked() {
+    if (this.shouldScrollToBottom && this.messages().length > this.lastMessageCount) {
       this.scrollToBottom();
+      this.lastMessageCount = this.messages().length;
       this.shouldScrollToBottom = false;
     }
   }
 
-  ngOnDestroy(): void {
-    if (this.activeChannel()?.id) {
-      this.store.dispatch(ChatActions.leaveChannel({ 
-        channelId: this.activeChannel()!.id 
-      }));
+  private initializeSubscriptions(): void {
+    // Suscribirse al canal activo
+    this.store.select(ChatSelectors.selectActiveChannel)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(channel => {
+        this.activeChannel.set(channel);
+        if (channel) {
+          this.shouldScrollToBottom = true;
+        }
+      });
+
+    // Suscribirse a los mensajes
+    this.store.select(ChatSelectors.selectMessagesForActiveChannel)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(messages => {
+        this.messages.set(messages || []);
+        this.shouldScrollToBottom = true;
+      });
+
+    // Suscribirse al estado de carga
+    this.store.select(ChatSelectors.selectChatLoading)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(loading => this.isLoading.set(loading));
+  }
+
+  private loadChannelFromRoute(): void {
+    this.route.params
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const channelId = params['channelId'];
+        if (channelId) {
+          this.store.dispatch(ChatActions.setActiveChannel({ channelId }));
+          this.store.dispatch(ChatActions.joinChannel({ channelId }));
+        }
+      });
+  }
+
+  // Métodos de UI
+  getChannelInitials(): string {
+    const name = this.activeChannel()?.name || '';
+    return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  getChannelStatus(): string {
+    const channel = this.activeChannel();
+    if (!channel) return '';
+
+    if (channel.type === 'global') {
+      return 'Chat general de la comunidad';
+    }
+
+    if (channel.isOnline) {
+      return 'En línea';
+    }
+
+    if (channel.lastSeen) {
+      const diff = Date.now() - new Date(channel.lastSeen).getTime();
+      const minutes = Math.floor(diff / 60000);
+      
+      if (minutes < 1) return 'Visto hace un momento';
+      if (minutes < 60) return `Visto hace ${minutes} min`;
+      
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `Visto hace ${hours}h`;
+      
+      return 'Visto hace más de un día';
+    }
+
+    return 'Desconectado';
+  }
+
+  isOwnMessage(message: ChatMessage): boolean {
+    return message.senderId === 'currentUser';
+  }
+
+  getMessageBubbleClass(message: ChatMessage): string {
+    if (message.messageType === 'system') {
+      return 'bg-gray-100 text-gray-700 mx-auto text-center';
+    }
+
+    return this.isOwnMessage(message)
+      ? 'bg-blue-600 text-white ml-auto'
+      : 'bg-white text-gray-900 border border-gray-200';
+  }
+
+  getUserInitials(name: string): string {
+    return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  formatTime(timestamp: Date): string {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return date.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    } else if (diffDays === 1) {
+      return 'Ayer';
+    } else if (diffDays < 7) {
+      return date.toLocaleDateString('es-ES', { weekday: 'short' });
+    } else {
+      return date.toLocaleDateString('es-ES', { 
+        day: 'numeric', 
+        month: 'short' 
+      });
     }
   }
 
-  sendMessage(): void {
-    if (!this.messageText.trim() || !this.activeChannel()) return;
-
-    this.store.dispatch(ChatActions.sendMessage({
-      channelId: this.activeChannel()!.id,
-      content: this.messageText.trim()
-    }));
-
-    this.messageText = '';
-    this.messageInput.nativeElement.style.height = '40px';
+  isPlazaChat(): boolean {
+    return this.activeChannel()?.id?.startsWith('plaza-') || false;
   }
 
-  onEnterPress(event: KeyboardEvent): void {
+  getTypingIndicatorText(): string {
+    return `${this.activeChannel()?.name?.split(' ')[0] || 'Alguien'} está escribiendo...`;
+  }
+
+  trackByMessageId(index: number, message: ChatMessage): string {
+    return message.id;
+  }
+
+  // Métodos de interacción
+  sendMessage(): void {
+    const content = this.newMessage().trim();
+    const channelId = this.activeChannel()?.id;
+
+    if (content && channelId) {
+      this.store.dispatch(ChatActions.sendMessage({ channelId, content }));
+      this.newMessage.set('');
+      this.shouldScrollToBottom = true;
+      
+      // Focus en el input después de enviar
+      setTimeout(() => {
+        this.messageInput?.nativeElement?.focus();
+      }, 100);
+    }
+  }
+
+  updateMessage(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    this.newMessage.set(target.value);
+  }
+
+  sendQuickMessage(content: string): void {
+    const channelId = this.activeChannel()?.id;
+    if (channelId) {
+      this.store.dispatch(ChatActions.sendMessage({ channelId, content }));
+      this.shouldScrollToBottom = true;
+    }
+  }
+
+  onKeyDown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
     }
   }
 
-  goBack(): void {
-    this.router.navigate(['/chat']);
+  onTyping(): void {
+    // Implementar indicador de "escribiendo..."
+    // Por simplicidad, solo actualizamos el signal local
+    this.isTyping.set(true);
+    
+    // Debounce para dejar de mostrar "escribiendo"
+    setTimeout(() => {
+      this.isTyping.set(false);
+    }, 1000);
+  }
+
+  onScroll(): void {
+    const container = this.messagesContainer.nativeElement;
+    const isAtBottom = container.scrollHeight - container.clientHeight <= container.scrollTop + 10;
+    
+    if (isAtBottom) {
+      this.shouldScrollToBottom = true;
+    }
   }
 
   private scrollToBottom(): void {
@@ -96,34 +263,36 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
       const container = this.messagesContainer.nativeElement;
       container.scrollTop = container.scrollHeight;
     } catch (err) {
-      console.error('Error scrolling to bottom:', err);
+      console.warn('Error al hacer scroll:', err);
     }
   }
 
-  getInitials(name: string): string {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  // Métodos de menús y acciones
+  showChannelInfo(): void {
+    // TODO: Mostrar modal con información del canal
+    console.log('Mostrar info del canal:', this.activeChannel());
   }
 
-  formatMessageTime(timestamp: Date): string {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('es-ES', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
-    });
+  makeCall(): void {
+    // TODO: Integrar con sistema de llamadas
+    console.log('Realizar llamada a:', this.activeChannel()?.name);
   }
 
-  formatLastSeen(lastSeen: Date): string {
-    const now = new Date();
-    const diffMs = now.getTime() - lastSeen.getTime();
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    
-    if (diffMinutes < 5) return 'hace un momento';
-    if (diffMinutes < 60) return `hace ${diffMinutes} min`;
-    
-    const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `hace ${diffHours}h`;
-    
-    return lastSeen.toLocaleDateString('es-ES');
+  openAttachmentMenu(): void {
+    // TODO: Abrir menú de adjuntos
+    console.log('Abrir menú de adjuntos');
+  }
+
+  openEmojiPicker(): void {
+    // TODO: Abrir selector de emojis
+    console.log('Abrir selector de emojis');
+  }
+
+  hideContextMenu(): void {
+    this.showContextMenu.set(false);
+  }
+
+  goBack(): void {
+    this.router.navigate(['/chat']);
   }
 }

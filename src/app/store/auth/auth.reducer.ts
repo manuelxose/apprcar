@@ -13,9 +13,21 @@ export interface AuthState {
   isRegistering: boolean;
 }
 
+// Helper function to safely access localStorage
+function getTokenFromStorage(): string | null {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem('apparcar_token');
+    }
+  } catch (error) {
+    // localStorage no disponible (SSR)
+  }
+  return null;
+}
+
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('apparcar_token'),
+  token: getTokenFromStorage(),
   isAuthenticated: false,
   loading: false,
   error: null,

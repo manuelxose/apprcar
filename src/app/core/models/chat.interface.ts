@@ -22,6 +22,12 @@ export interface ChatChannel {
   avatar?: string;
   isOnline?: boolean;
   lastSeen?: Date;
+  metadata?: {
+    plazaId?: string;
+    contextType?: string;
+    createdAt?: string;
+    [key: string]: any;
+  };
 }
 
 export interface ChatUser {

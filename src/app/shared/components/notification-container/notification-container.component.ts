@@ -1,7 +1,7 @@
 // src/app/shared/components/notification-container/notification-container.component.ts
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NotificationService, UINotificationMessage, NotificationAction } from '@core/services/notification.service';
+import { UnifiedNotificationService, UINotificationMessage, NotificationAction } from '@core/services/unified-notification.service';
 
 @Component({
   selector: 'app-notification-container',
@@ -11,9 +11,9 @@ import { NotificationService, UINotificationMessage, NotificationAction } from '
   styleUrls: ['./notification-container.component.scss']
 })
 export class NotificationContainerComponent {
-  private notificationService = inject(NotificationService);
+  private UnifiedNotificationService = inject(UnifiedNotificationService);
   
-  notifications = this.notificationService.uiNotifications$;
+  notifications = this.UnifiedNotificationService.uiNotifications$;
 
   trackByFn(index: number, item: UINotificationMessage): string {
     return item.id;
@@ -37,7 +37,7 @@ export class NotificationContainerComponent {
   }
 
   dismiss(id: string): void {
-    this.notificationService.dismissUINotification(id);
+    this.UnifiedNotificationService.dismissUINotification(id);
   }
 
   executeAction(action: NotificationAction): void {

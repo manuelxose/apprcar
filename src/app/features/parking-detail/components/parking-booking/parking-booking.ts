@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 // Servicios
-import { NotificationService } from '@core/services/notification.service';
+import { UnifiedNotificationService } from '@core/services/unified-notification.service';
 
 // Modelos
 import { 
@@ -38,7 +38,7 @@ export class ParkingBookingComponent implements OnInit {
   @Output() reservationComplete = new EventEmitter<ParkingReservation>();
 
   private fb = inject(FormBuilder);
-  private notificationService = inject(NotificationService);
+  private UnifiedNotificationService = inject(UnifiedNotificationService);
 
   // Signals
   currentStep = signal<number>(0);
@@ -313,14 +313,14 @@ export class ParkingBookingComponent implements OnInit {
       };
 
       this.reservationComplete.emit(reservation);
-      this.notificationService.showSuccess(
+      this.UnifiedNotificationService.showSuccess(
         'Tu reserva ha sido procesada exitosamente',
         '¡Reserva completada!'
       );
 
     } catch (error) {
       console.error('Error creating reservation:', error);
-      this.notificationService.showError(
+      this.UnifiedNotificationService.showError(
         'No se pudo procesar tu reserva. Inténtalo de nuevo.',
         'Error en la reserva'
       );

@@ -19,7 +19,9 @@ export const authGuard: CanActivateFn = (route, state) => {
       }
 
       // Si hay token pero no está validado, intentar validar
-      const token = localStorage.getItem('apparcar_token');
+      const token = typeof window !== 'undefined' && window.localStorage 
+        ? localStorage.getItem('apparcar_token') 
+        : null;
       if (token) {
         store.dispatch(AuthActions.checkTokenValidity());
         return false; // Se resolverá en el próximo ciclo

@@ -50,3 +50,24 @@ export const markMessagesAsRead = createAction(
   '[Chat] Mark Messages As Read',
   props<{ channelId: string }>()
 );
+
+// Nuevas acciones para manejo de errores y socket
+export const socketError = createAction(
+  '[Chat] Socket Error',
+  props<{ error: string }>()
+);
+
+export const socketConnected = createAction('[Chat] Socket Connected');
+
+export const socketDisconnected = createAction('[Chat] Socket Disconnected');
+
+// Nuevas acciones para chat contextual de plazas
+export const createPlazaChat = createAction(
+  '[Chat] Create Plaza Chat',
+  props<{ plazaId: string; sharerUserId: string; claimerUserId: string }>()
+);
+
+export const createPlazaChatSuccess = createAction(
+  '[Chat] Create Plaza Chat Success',
+  props<{ channel: ChatChannel }>()
+);

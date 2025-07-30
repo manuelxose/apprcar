@@ -1,0 +1,277 @@
+/* Chat Conversation Component Styles */
+
+/* Layout del chat - asegurar altura completa y scroll correcto */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.messages-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.input-area {
+  flex-shrink: 0;
+}
+
+/* Animaciones */
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -4px, 0);
+  }
+  70% {
+    transform: translate3d(0, -2px, 0);
+  }
+  90% {
+    transform: translate3d(0, -1px, 0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Mensajes */
+.message-enter {
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+.highlighted {
+  animation: pulse 1s ease-in-out 3;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Textarea auto-resize */
+.message-input {
+  min-height: 20px;
+  max-height: 120px;
+  transition: height 0.2s ease;
+}
+
+/* Estados de conexión */
+.connection-indicator {
+  animation: pulse 2s infinite;
+}
+
+/* Indicador de escritura */
+.typing-indicator {
+  animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing-indicator:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-indicator:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+/* Burbujas de mensaje */
+.message-bubble {
+  position: relative;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.message-bubble::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* Cola de mensaje propio (derecha) */
+.own-message .message-bubble::before {
+  right: -6px;
+  top: 12px;
+  border-left: 6px solid #2563eb;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+/* Cola de mensaje ajeno (izquierda) */
+.other-message .message-bubble::before {
+  left: -6px;
+  top: 12px;
+  border-right: 6px solid #ffffff;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+/* Efectos hover */
+.message-bubble:hover {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
+
+/* Preview de imágenes */
+.image-preview {
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.image-preview:hover {
+  transform: scale(1.05);
+}
+
+/* Adjuntos */
+.attachment-item {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.attachment-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Picker de emojis */
+.emoji-picker {
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.emoji-button {
+  transition: all 0.2s ease;
+}
+
+.emoji-button:hover {
+  transform: scale(1.2);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Acciones rápidas */
+.quick-action {
+  transition: all 0.2s ease;
+}
+
+.quick-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .message-bubble {
+    max-width: 85%;
+  }
+  
+  .emoji-picker {
+    left: 50% !important;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 320px;
+  }
+}
+
+/* Estados especiales */
+.sending {
+  opacity: 0.7;
+  position: relative;
+}
+
+.sending::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -20px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #3b82f6;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error {
+  color: #ef4444;
+}
+
+.success {
+  color: #10b981;
+}
+
+/* Focus states para accesibilidad */
+button:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Transiciones suaves */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Estados de carga */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

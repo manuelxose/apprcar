@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { ChatChannel } from '@core/models/chat.interface';
-import * as ChatActions from '../../store/chat.actions';
-import * as ChatSelectors from '../../store/chat.selectors';
+import * as ChatActions from './store/chat.actions';
+import * as ChatSelectors from './store/chat.selectors';
 
 
 @Component({
@@ -60,6 +60,14 @@ export class ChatComponent implements OnInit, OnDestroy {
   startNewChat(): void {
     // Navigate to user selection or show modal
     this.router.navigate(['/chat/new']);
+  }
+
+  createPlazaChat(plazaId: string, sharerUserId: string, claimerUserId: string): void {
+    this.store.dispatch(ChatActions.createPlazaChat({ 
+      plazaId, 
+      sharerUserId, 
+      claimerUserId 
+    }));
   }
 
   goBack(): void {

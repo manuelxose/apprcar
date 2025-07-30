@@ -7,7 +7,9 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { provideServiceWorker } from '@angular/service-worker';
 import { chatReducer, ChatEffects } from '@features/chat';
 import { plazaReducer } from './store/plaza/plaza.reducer';
+import { authReducer } from './store/auth/auth.reducer';
 import { PlazaEffects } from '@store/plaza/plaza.effects';
+import { AuthEffects } from '@store/auth/auth.effects';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
 
@@ -25,8 +27,9 @@ export const appConfig: ApplicationConfig = {
     // Additional providers can be added here
     provideStore({ 
       chat: chatReducer,
-      plaza: plazaReducer 
+      plaza: plazaReducer,
+      auth: authReducer 
     }),
-    provideEffects([ChatEffects, PlazaEffects])
+    provideEffects([ChatEffects, PlazaEffects, AuthEffects])
   ]
 };

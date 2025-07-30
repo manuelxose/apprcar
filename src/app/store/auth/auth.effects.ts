@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { map, catchError, exhaustMap, tap } from 'rxjs/operators';
 import { AuthService } from '@core/services/auth.service';
-import { NotificationService } from '@core/services/notification.service';
+import { UnifiedNotificationService } from '@core/services/unified-notification.service';
 import * as AuthActions from './auth.actions';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class AuthEffects {
   private actions$ = inject(Actions);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private notificationService = inject(NotificationService);
+  private UnifiedNotificationService = inject(UnifiedNotificationService);
 
   login$ = createEffect(() =>
     this.actions$.pipe(
@@ -22,7 +22,7 @@ export class AuthEffects {
         this.authService.login(credentials).pipe(
           map(response => {
             localStorage.setItem('apparcar_token', response.token);
-            this.notificationService.showSuccess(
+            this.UnifiedNotificationService.showSuccess(
               'Has iniciado sesión correctamente',
               '¡Bienvenido a Apparcar!'
             );
@@ -32,7 +32,7 @@ export class AuthEffects {
             });
           }),
           catchError(error => {
-            this.notificationService.showError(
+            this.UnifiedNotificationService.showError(
               error.message || 'Error al iniciar sesión',
               'Error de inicio de sesión'
             );
@@ -50,7 +50,7 @@ export class AuthEffects {
         this.authService.login({ email: data.email, password: data.password }).pipe(
           map(response => {
             localStorage.setItem('apparcar_token', response.token);
-            this.notificationService.showSuccess(
+            this.UnifiedNotificationService.showSuccess(
               'Tu cuenta ha sido registrada correctamente',
               '¡Cuenta creada exitosamente!'
             );
@@ -60,7 +60,7 @@ export class AuthEffects {
             });
           }),
           catchError(error => {
-            this.notificationService.showError(
+            this.UnifiedNotificationService.showError(
               error.message || 'Error al crear cuenta',
               'Error al crear cuenta'
             );
@@ -77,7 +77,7 @@ export class AuthEffects {
       tap(() => {
         localStorage.removeItem('apparcar_token');
         this.router.navigate(['/auth/login']);
-        this.notificationService.showInfo(
+        this.UnifiedNotificationService.showInfo(
           'Has cerrado sesión correctamente',
           'Sesión cerrada'
         );
@@ -134,13 +134,13 @@ export class AuthEffects {
         const currentUser = this.authService.getCurrentUser();
         if (currentUser) {
           const updatedUser = { ...currentUser, ...userData };
-          this.notificationService.showSuccess(
+          this.UnifiedNotificationService.showSuccess(
             'Tu perfil ha sido actualizado correctamente',
             'Perfil actualizado'
           );
           return of(AuthActions.updateUserProfileSuccess({ user: updatedUser }));
         } else {
-          this.notificationService.showError(
+          this.UnifiedNotificationService.showError(
             'No se pudo actualizar el perfil',
             'Error al actualizar perfil'
           );

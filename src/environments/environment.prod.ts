@@ -4,6 +4,7 @@
 export const environment = {
   production: true,
   apiUrl: 'https://api.parkingapp.com/api',
+  mockDataEnabled: false, // Disable mock data in production
   
   // Default map location
   defaultCity: {

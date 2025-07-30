@@ -1,0 +1,179 @@
+<!-- Plaza Detail Component Template -->
+<div class="plaza-detail-container">
+  
+  <!-- Plaza Header -->
+  <div class="plaza-header">
+    <div class="plaza-info">
+      <h2 class="plaza-title">Plaza {{ plazaId }}</h2>
+      <p class="plaza-status" [class]="getStatusClass()">
+        {{ getStatusLabel() }}
+      </p>
+    </div>
+    
+    <div class="plaza-meta">
+      <span class="plaza-distance" *ngIf="plaza()?.distance">
+        📍 {{ plaza()!.distance }}m
+      </span>
+      <span class="plaza-price" *ngIf="plaza()?.details?.isPaid">
+        💰 {{ plaza()!.details.price }}€/h
+      </span>
+    </div>
+  </div>
+
+  <!-- Plaza Actions -->
+  <div class="plaza-actions">
+    
+    <!-- Primary Action - Claim Plaza -->
+    <button 
+      *ngIf="!isPlazaClaimed() && plaza()?.status === 'available'"
+      (click)="claimPlaza()"
+      [disabled]="isLoading()"
+      class="btn btn-primary">
+      <span class="btn-icon">🚗</span>
+      <span class="btn-text">Reclamar Plaza</span>
+      <div *ngIf="isLoading()" class="loading-spinner"></div>
+    </button>
+
+    <!-- Chat Actions -->
+    <div class="chat-actions" *ngIf="hasActiveChat()">
+      
+      <!-- Open Chat -->
+      <button 
+        (click)="openPlazaChat()"
+        class="btn btn-secondary">
+        <span class="btn-icon">💬</span>
+        <span class="btn-text">Abrir Chat</span>
+        <span *ngIf="unreadMessages() > 0" class="badge">{{ unreadMessages() }}</span>
+      </button>
+
+      <!-- Quick Messages (for claimed plazas) -->
+      <div class="quick-messages" *ngIf="isPlazaClaimed()">
+        <h4>Mensajes Rápidos:</h4>
+        <div class="quick-message-buttons">
+          <button 
+            (click)="sendQuickMessage('Ya estoy llegando 🚗')"
+            class="btn btn-outline">
+            🚗 Ya voy
+          </button>
+          <button 
+            (click)="sendQuickMessage('He llegado, ¿dónde está la plaza?')"
+            class="btn btn-outline">
+            📍 He llegado
+          </button>
+          <button 
+            (click)="sendQuickMessage('¡Perfecto! Gracias por la plaza 🙏')"
+            class="btn btn-outline">
+            🙏 Gracias
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrival Notification -->
+    <div class="arrival-section" *ngIf="isPlazaClaimed() && !isAtPlaza()">
+      <h4>Notificar Llegada:</h4>
+      <div class="arrival-controls">
+        <select [value]="estimatedArrival()" (change)="estimatedArrival.set(+$any($event).target.value)" class="arrival-select">
+          <option value="2">2 minutos</option>
+          <option value="5">5 minutos</option>
+          <option value="10">10 minutos</option>
+          <option value="15">15 minutos</option>
+        </select>
+        <button 
+          (click)="notifyArrival()"
+          class="btn btn-info">
+          <span class="btn-icon">🚗</span>
+          <span class="btn-text">Avisar que llego</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Confirm Occupation -->
+    <div class="confirmation-section" *ngIf="isAtPlaza()">
+      <h4>¿Has ocupado la plaza?</h4>
+      <div class="confirmation-buttons">
+        <button 
+          (click)="confirmOccupation(true)"
+          class="btn btn-success">
+          <span class="btn-icon">✅</span>
+          <span class="btn-text">Sí, plaza ocupada</span>
+        </button>
+        <button 
+          (click)="confirmOccupation(false)"
+          class="btn btn-warning">
+          <span class="btn-icon">❌</span>
+          <span class="btn-text">No disponible</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Report Issue -->
+    <div class="report-section">
+      <button 
+        (click)="openReportModal()"
+        class="btn btn-danger btn-outline">
+        <span class="btn-icon">🚨</span>
+        <span class="btn-text">Reportar problema</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Plaza Details -->
+  <div class="plaza-details" *ngIf="plaza()">
+    <h4>Detalles de la Plaza</h4>
+    
+    <div class="detail-item">
+      <span class="detail-label">Ubicación:</span>
+      <span class="detail-value">{{ plaza()!.location.address || 'Dirección no disponible' }}</span>
+    </div>
+    
+    <div class="detail-item">
+      <span class="detail-label">Tamaño:</span>
+      <span class="detail-value">{{ getSizeLabel(plaza()!.details.size) }}</span>
+    </div>
+    
+    <div class="detail-item" *ngIf="plaza()?.details?.description">
+      <span class="detail-label">Descripción:</span>
+      <span class="detail-value">{{ plaza()!.details.description }}</span>
+    </div>
+    
+    <div class="detail-item">
+      <span class="detail-label">Disponible hasta:</span>
+      <span class="detail-value">{{ formatDate(plaza()!.availability.availableUntil) }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay" *ngIf="showReportModal()" (click)="closeReportModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Reportar Problema</h3>
+      <button (click)="closeReportModal()" class="modal-close">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <label for="issueType">Tipo de problema:</label>
+      <select id="issueType" [(ngModel)]="reportForm.issueType" class="form-select">
+        <option value="not_available">Plaza no disponible</option>
+        <option value="wrong_location">Ubicación incorrecta</option>
+        <option value="access_blocked">Acceso bloqueado</option>
+        <option value="other">Otro problema</option>
+      </select>
+      
+      <label for="description">Descripción:</label>
+      <textarea 
+        id="description"
+        [(ngModel)]="reportForm.description"
+        placeholder="Describe el problema..."
+        class="form-textarea"
+        rows="4">
+      </textarea>
+    </div>
+    
+    <div class="modal-footer">
+      <button (click)="closeReportModal()" class="btn btn-outline">Cancelar</button>
+      <button (click)="submitReport()" class="btn btn-danger">Reportar</button>
+    </div>
+  </div>
+</div>

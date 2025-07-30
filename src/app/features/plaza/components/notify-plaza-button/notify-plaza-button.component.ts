@@ -3,7 +3,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { GeolocationService } from '@core/services/geolocation.service';
-import { NotificationService } from '@core/services/notification.service';
+import { UnifiedNotificationService } from '@core/services/unified-notification.service';
 import { NotifyPlazaModalComponent } from '../notify-plaza-modal/notify-plaza-modal.component';
 import { UserLocation, PlazaNotificationData } from '@shared/interfaces';
 
@@ -20,7 +20,7 @@ import { UserLocation, PlazaNotificationData } from '@shared/interfaces';
 export class NotifyPlazaButtonComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly geolocationService = inject(GeolocationService);
-  private readonly notificationService = inject(NotificationService);
+  private readonly UnifiedNotificationService = inject(UnifiedNotificationService);
 
   // Signals
   showModal = signal(false);
@@ -47,7 +47,7 @@ export class NotifyPlazaButtonComponent implements OnInit {
       next: (location: UserLocation) => this.userLocation.set(location),
       error: (error: any) => {
         console.error('Error getting location:', error);
-        this.notificationService.showError('No se pudo obtener la ubicación');
+        this.UnifiedNotificationService.showError('No se pudo obtener la ubicación');
       }
     });
   }
@@ -106,7 +106,7 @@ export class NotifyPlazaButtonComponent implements OnInit {
   cancelActivePlaza() {
     // TODO: Implement cancel plaza action
     this.activePlaza.set(null);
-    this.notificationService.showSuccess('Plaza cancelada');
+    this.UnifiedNotificationService.showSuccess('Plaza cancelada');
   }
 
   onNotifyPlaza(data: PlazaNotificationData) {
@@ -124,7 +124,7 @@ export class NotifyPlazaButtonComponent implements OnInit {
         ...data,
         expiresAt: new Date(Date.now() + (data.estimatedDuration || 30) * 60 * 1000)
       });
-      this.notificationService.showSuccess('¡Plaza notificada exitosamente!');
+      this.UnifiedNotificationService.showSuccess('¡Plaza notificada exitosamente!');
     }, 1500);
   }
 }

@@ -1,0 +1,283 @@
+<div class="flex flex-col h-screen bg-white">
+  
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200 px-4 py-3">
+    <div class="flex items-center justify-between">
+      <h1 class="text-xl font-bold text-gray-900">Chats</h1>
+      
+      <div class="flex items-center space-x-2">
+        <!-- Botón buscar -->
+        <button
+          (click)="toggleSearch()"
+          class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          title="Buscar conversaciones"
+        >
+          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+
+        <!-- Botón nuevo chat -->
+        <button
+          (click)="startNewChat()"
+          class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          title="Nuevo chat"
+        >
+          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+        </button>
+
+        <!-- Menú opciones -->
+        <button
+          (click)="toggleOptionsMenu()"
+          class="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          title="Opciones"
+        >
+          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de búsqueda (expandible) -->
+    <div 
+      *ngIf="showSearch()"
+      class="mt-3 transition-all duration-300 ease-in-out"
+    >
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        <input
+          type="text"
+          [value]="searchQuery()"
+          (input)="updateSearchQuery($event); onSearchChange()"
+          placeholder="Buscar conversaciones..."
+          class="w-full pl-10 pr-4 py-2 bg-gray-100 border border-transparent rounded-lg focus:bg-white focus:border-blue-500 focus:outline-none transition-all duration-200"
+        >
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado de conexión -->
+  <div 
+    *ngIf="!isConnected()"
+    class="bg-yellow-50 border-b border-yellow-200 px-4 py-2"
+  >
+    <div class="flex items-center text-sm text-yellow-800">
+      <svg class="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      Conectando al chat...
+    </div>
+  </div>
+
+  <!-- Lista de conversaciones -->
+  <div class="flex-1 overflow-y-auto">
+    
+    <!-- Loading state -->
+    <div *ngIf="isLoading()" class="flex justify-center py-8">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+
+    <!-- Lista de chats -->
+    <div *ngIf="!isLoading()" class="divide-y divide-gray-100">
+      
+      <!-- Chat item -->
+      <div
+        *ngFor="let channel of filteredChannels(); trackBy: trackByChannelId"
+        (click)="openChat(channel)"
+        class="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors duration-200 active:bg-gray-100"
+        [class.bg-blue-50]="channel.id === activeChannelId()"
+      >
+        
+        <!-- Avatar -->
+        <div class="relative flex-shrink-0 mr-3">
+          <img
+            *ngIf="channel.avatar && !channel.avatar.includes('�')"
+            [src]="channel.avatar"
+            [alt]="channel.name"
+            class="w-12 h-12 rounded-full object-cover"
+          >
+          <div
+            *ngIf="!channel.avatar || channel.avatar.includes('�')"
+            class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold"
+            [style.background-color]="getChannelColor(channel)"
+          >
+            {{ getChannelInitials(channel) }}
+          </div>
+          
+          <!-- Indicador online -->
+          <div
+            *ngIf="channel.isOnline && channel.type === 'direct'"
+            class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"
+          ></div>
+
+          <!-- Badge de no leídos -->
+          <div
+            *ngIf="channel.unreadCount > 0"
+            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
+          >
+            {{ channel.unreadCount > 99 ? '99+' : channel.unreadCount }}
+          </div>
+        </div>
+
+        <!-- Contenido del chat -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between mb-1">
+            <!-- Nombre del chat -->
+            <h3 
+              class="text-sm font-semibold text-gray-900 truncate"
+              [class.font-bold]="channel.unreadCount > 0"
+            >
+              {{ channel.name }}
+            </h3>
+
+            <!-- Timestamp del último mensaje -->
+            <span class="text-xs text-gray-500 flex-shrink-0 ml-2">
+              {{ getLastMessageTime(channel) }}
+            </span>
+          </div>
+
+          <!-- Último mensaje -->
+          <div class="flex items-center">
+            <p 
+              class="text-sm text-gray-600 truncate flex-1"
+              [class.font-medium]="channel.unreadCount > 0"
+              [class.text-gray-900]="channel.unreadCount > 0"
+            >
+              <span *ngIf="channel.lastMessage?.messageType === 'system'" class="italic">
+                {{ channel.lastMessage?.senderAvatar }} {{ channel.lastMessage?.content }}
+              </span>
+              <span *ngIf="channel.lastMessage?.messageType === 'text'">
+                <span *ngIf="isOwnMessage(channel.lastMessage)" class="text-gray-400">Tú: </span>
+                {{ channel.lastMessage?.content }}
+              </span>
+              <span *ngIf="!channel.lastMessage" class="italic text-gray-400">
+                Sin mensajes aún
+              </span>
+            </p>
+
+            <!-- Estado del mensaje (leído/no leído) -->
+            <div *ngIf="isOwnMessage(channel.lastMessage)" class="ml-2 flex-shrink-0">
+              <svg 
+                *ngIf="channel.lastMessage?.isRead" 
+                class="w-4 h-4 text-blue-500" 
+                fill="currentColor" 
+                viewBox="0 0 20 20"
+              >
+                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+              </svg>
+              <svg 
+                *ngIf="!channel.lastMessage?.isRead" 
+                class="w-4 h-4 text-gray-400" 
+                fill="currentColor" 
+                viewBox="0 0 20 20"
+              >
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Indicadores adicionales -->
+          <div class="flex items-center mt-1 space-x-2">
+            <!-- Tipo de chat -->
+            <span *ngIf="channel.type === 'global'" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+              🌐 Global
+            </span>
+            <span *ngIf="isPlazaChat(channel)" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+              🅿️ Plaza
+            </span>
+
+            <!-- Estado de escritura -->
+            <span *ngIf="isTyping(channel)" class="text-xs text-blue-600 italic">
+              escribiendo...
+            </span>
+          </div>
+        </div>
+
+        <!-- Chevron -->
+        <div class="ml-2 flex-shrink-0">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <div 
+      *ngIf="!isLoading() && filteredChannels().length === 0"
+      class="flex flex-col items-center justify-center py-12 px-4"
+    >
+      <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">
+        {{ searchQuery() ? 'Sin resultados' : 'No hay conversaciones' }}
+      </h3>
+      <p class="text-gray-500 text-center max-w-xs">
+        {{ searchQuery() 
+          ? 'No se encontraron conversaciones que coincidan con tu búsqueda.' 
+          : 'Cuando compartas o reclames una plaza, aparecerán aquí los chats con otros usuarios.' 
+        }}
+      </p>
+      
+      <button
+        *ngIf="!searchQuery()"
+        (click)="startNewChat()"
+        class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
+      >
+        Buscar plazas cercanas
+      </button>
+    </div>
+  </div>
+
+  <!-- Menu de opciones flotante -->
+  <div
+    *ngIf="showOptionsMenu()"
+    class="fixed inset-0 z-50"
+    (click)="hideOptionsMenu()"
+  >
+    <div class="absolute top-16 right-4 bg-white rounded-lg shadow-xl border py-2 min-w-[180px]">
+      <button 
+        (click)="markAllAsRead()"
+        class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors duration-200"
+      >
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Marcar todo como leído
+      </button>
+      
+      <button 
+        (click)="openSettings()"
+        class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors duration-200"
+      >
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Configuración
+      </button>
+      
+      <hr class="my-2 border-gray-100">
+      
+      <button 
+        (click)="showHelp()"
+        class="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm transition-colors duration-200"
+      >
+        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Ayuda
+      </button>
+    </div>
+  </div>
+</div>

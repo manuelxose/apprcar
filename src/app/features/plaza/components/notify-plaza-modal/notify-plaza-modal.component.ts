@@ -8,7 +8,7 @@ import { Store } from '@ngrx/store';
 
 // Servicios
 import { GeolocationService } from '@core/services/geolocation.service';
-import { NotificationService } from '@core/services/notification.service';
+import { UnifiedNotificationService } from '@core/services/unified-notification.service';
 
 // Interfaces
 import { UserLocation, PlazaNotificationData, PlazaType, PlazaAvailability } from '@shared/interfaces';
@@ -27,7 +27,7 @@ export class NotifyPlazaModalComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly store = inject(Store);
   private readonly geolocationService = inject(GeolocationService);
-  private readonly notificationService = inject(NotificationService);
+  private readonly UnifiedNotificationService = inject(UnifiedNotificationService);
   private readonly destroy$ = new Subject<void>();
 
   // Inputs y Outputs
@@ -184,11 +184,11 @@ export class NotifyPlazaModalComponent implements OnInit, OnDestroy {
           this.nextStep();
         },
         error: (error: any) => {
-          this.notificationService.showError('No se pudo obtener la ubicación actual');
+          this.UnifiedNotificationService.showError('No se pudo obtener la ubicación actual');
         }
       });
     } catch (error) {
-      this.notificationService.showError('No se pudo obtener la ubicación actual');
+      this.UnifiedNotificationService.showError('No se pudo obtener la ubicación actual');
     }
   }
 
@@ -251,7 +251,7 @@ export class NotifyPlazaModalComponent implements OnInit, OnDestroy {
       this.closeModal();
 
     } catch (error) {
-      this.notificationService.showError('Error al procesar la notificación');
+      this.UnifiedNotificationService.showError('Error al procesar la notificación');
     } finally {
       this.isSubmitting.set(false);
     }

@@ -21,8 +21,8 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 
 import { GeolocationService } from '@core/services/geolocation.service';
-import { NotificationService } from '@core/services/notification.service';
-import { PlazaDetailModalComponent } from './components/plaza-detail-modal/plaza-detail-modal.component';
+import { UnifiedNotificationService } from '@core/services/unified-notification.service';
+import { PlazaDetailModalComponent } from '../plaza/components/plaza-detail-modal/plaza-detail-modal.component';
 import { MapControlsComponent } from './components/map-controls/map-controls.component';
 
 import * as PlazaActions from '@store/plaza/plaza.actions';
@@ -63,7 +63,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
   private store = inject(Store);
   private geolocationService = inject(GeolocationService);
-  private notificationService = inject(NotificationService);
+  private notificationService = inject(UnifiedNotificationService);
 
   // Leaflet map instance
   private map!: L.Map;
@@ -185,6 +185,28 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   private getUserLocation(): void {
     this.loadingMessage.set('Obteniendo tu ubicación...');
     
+    // PARA DESARROLLO: Forzar ubicación de Vigo
+    const vigoLocation: LocationData = {
+      coordinates: { latitude: 42.2406, longitude: -8.7207 },
+      address: {
+        formattedAddress: 'Vigo, España',
+        city: 'Vigo',
+        country: 'España',
+        countryCode: 'ES'
+      },
+      accuracy: 10,
+      timestamp: new Date(),
+      source: 'manual' as any
+    };
+    
+    console.log('🔧 DESARROLLO: Usando ubicación forzada de Vigo');
+    this.userLocation.set(vigoLocation);
+    this.store.dispatch(PlazaActions.updateUserLocation({ location: vigoLocation }));
+    this.centerMapOnLocation(vigoLocation.coordinates);
+    this.loadNearbyPlazas(vigoLocation);
+    
+    // Código original comentado para desarrollo
+    /*
     this.geolocationService.getCurrentPosition()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -216,12 +238,12 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
           this.error.set('No se pudo obtener tu ubicación. Activa el GPS.');
           this.loadingMessage.set('Usando ubicación por defecto...');
           
-          // Usar ubicación por defecto (Madrid)
+          // Usar ubicación por defecto (Vigo)
           const defaultLocation: LocationData = {
-            coordinates: { latitude: 40.4168, longitude: -3.7038 },
+            coordinates: { latitude: 42.2406, longitude: -8.7207 },
             address: {
-              formattedAddress: 'Madrid, España',
-              city: 'Madrid',
+              formattedAddress: 'Vigo, España',
+              city: 'Vigo',
               country: 'España',
               countryCode: 'ES'
             },
@@ -234,12 +256,13 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
           this.loadNearbyPlazas(defaultLocation);
         }
       });
+    */
   }
 
   private initializeMap(): void {
     // Crear mapa
     this.map = L.map(this.mapContainer.nativeElement, {
-      center: [40.4168, -3.7038], // Madrid por defecto
+      center: [42.2406, -8.7207], // Vigo por defecto
       zoom: 15,
       zoomControl: true,
       attributionControl: true
@@ -281,13 +304,31 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     // Mark map as initialized and process pending plazas
     this.isMapInitialized.set(true);
     this.isLoading.set(false);
-    console.log('Map initialized successfully');
+    console.log('🗺️ Map initialized successfully');
     
     // Process any pending plazas that arrived before map was ready
     if (this.pendingPlazas.length > 0) {
-      console.log('Processing pending plazas:', this.pendingPlazas.length);
+      console.log('📋 Processing pending plazas:', this.pendingPlazas.length);
       this.updateMapMarkers(this.pendingPlazas);
       this.pendingPlazas = [];
+    }
+    
+    // If we don't have user location yet, load plazas for default location
+    if (!this.userLocation()) {
+      console.log('🏠 Loading plazas for default Vigo location');
+      const defaultLocation: LocationData = {
+        coordinates: { latitude: 42.2406, longitude: -8.7207 },
+        address: {
+          formattedAddress: 'Vigo, España',
+          city: 'Vigo',
+          country: 'España',
+          countryCode: 'ES'
+        },
+        accuracy: 0,
+        timestamp: new Date(),
+        source: 'manual' as any
+      };
+      this.loadNearbyPlazas(defaultLocation);
     }
   }
 
@@ -343,12 +384,19 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     try {
+      console.log(`🗺️ Updating map with ${plazas.length} plazas`);
+      
       // Clear existing markers
       this.markerClusterGroup.clearLayers();
       this.plazaMarkers.clear();
 
       // Add new markers
-      plazas.forEach(plaza => this.addPlazaMarker(plaza));
+      plazas.forEach((plaza, index) => {
+        console.log(`Adding plaza ${index + 1}:`, plaza.location.address, `(${plaza.status})`);
+        this.addPlazaMarker(plaza);
+      });
+      
+      console.log(`✅ Successfully added ${plazas.length} markers to map`);
     } catch (error) {
       console.error('Error updating map markers:', error);
     }
@@ -451,7 +499,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private loadNearbyPlazas(location: LocationData): void {
-    console.log('Loading nearby plazas for location:', location.coordinates);
+    console.log('🔍 Loading nearby plazas for location:', location.coordinates);
+    console.log(`📍 Location: ${location.address.formattedAddress}`);
+    console.log(`📏 Radius: ${this.filters().radius}m`);
+    
     this.store.dispatch(PlazaActions.loadNearbyFreePlazas({
       location,
       radius: this.filters().radius
@@ -460,11 +511,12 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     // Safety timeout to prevent infinite loading
     setTimeout(() => {
       if (this.isLoading()) {
-        console.warn('Plaza loading timeout reached, forcing loading state to false');
+        console.warn('⏰ Plaza loading timeout reached, forcing loading state to false');
         this.isLoading.set(false);
         this.loadingMessage.set('');
         // If no plazas were loaded, show a message
         if (this.availablePlazas().length === 0) {
+          console.warn('❌ No plazas found after timeout');
           this.error.set('No se encontraron plazas cercanas. Intenta ajustar los filtros.');
         }
       }
